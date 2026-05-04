@@ -498,13 +498,22 @@
         </div>
         <div class="field-group">
           <label class="field-label">Idade gestacional</label>
-          <input type="text" class="field-input" placeholder="ex: 39 semanas">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="ig-semanas" class="field-input" placeholder="Semanas" min="20" max="45" style="flex:1;" oninput="updateRNClassif()">
+            <span style="font-size:12px;color:var(--muted);white-space:nowrap;">sem +</span>
+            <input type="number" id="ig-dias" class="field-input" placeholder="Dias" min="0" max="6" style="width:60px;" oninput="updateRNClassif()">
+            <span style="font-size:12px;color:var(--muted);white-space:nowrap;">dias</span>
+          </div>
         </div>
         <div class="field-group">
           <label class="field-label">Peso ao nascer</label>
-          <input type="text" class="field-input" placeholder="ex: 3.200 g">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="number" id="peso-nascer" class="field-input" placeholder="Gramas" min="300" max="6000" style="flex:1;" oninput="updateRNClassif()">
+            <span style="font-size:12px;color:var(--muted);white-space:nowrap;">g</span>
+          </div>
         </div>
       </div>
+      <div id="rn-classif-result" class="zscore-box" style="display:none; margin-top:6px; margin-bottom:6px;"></div>
       <div class="field-row">
         <div class="field-group">
           <label class="field-label">Icterícia neonatal</label>
@@ -1866,6 +1875,57 @@ function classifyHCFA(z) {
   if (z <= 2) return { classLabel: 'PC adequado', cls: 'zc-ok' };
   if (z <= 3) return { classLabel: 'Macrocefalia', cls: 'zc-warn' };
   return { classLabel: 'Macrocefalia grave', cls: 'zc-danger' };
+}
+
+function classifyIG(weeks, days) {
+  if (weeks === null || isNaN(weeks)) return null;
+  days = (!isNaN(days) && days >= 0 && days <= 6) ? days : 0;
+  const totalDays = weeks * 7 + days;
+  if (totalDays < 28 * 7)      return { classLabel: 'Pré-termo extremo', subLabel: '< 28 semanas', cls: 'zc-danger' };
+  if (totalDays < 32 * 7)      return { classLabel: 'Pré-termo muito prematuro', subLabel: '28 a < 32 semanas', cls: 'zc-danger' };
+  if (totalDays < 37 * 7)      return { classLabel: 'Pré-termo moderado a tardio', subLabel: '32 a < 37 semanas', cls: 'zc-warn' };
+  if (totalDays <= 38 * 7 + 6) return { classLabel: 'Termo precoce', subLabel: '37 a 38s+6d', cls: 'zc-obs' };
+  if (totalDays <= 40 * 7 + 6) return { classLabel: 'Termo completo', subLabel: '39 a 40s+6d', cls: 'zc-ok' };
+  if (totalDays <= 41 * 7 + 6) return { classLabel: 'Termo tardio', subLabel: '41 a 41s+6d', cls: 'zc-obs' };
+  return { classLabel: 'Pós-termo', subLabel: '≥ 42 semanas', cls: 'zc-warn' };
+}
+
+function classifyPesoNascer(g) {
+  if (g === null || isNaN(g) || g <= 0) return null;
+  if (g < 1000) return { classLabel: 'Extremo baixo peso', subLabel: '< 1.000 g', cls: 'zc-danger' };
+  if (g < 1500) return { classLabel: 'Muito baixo peso', subLabel: '< 1.500 g', cls: 'zc-danger' };
+  if (g < 2500) return { classLabel: 'Baixo peso', subLabel: '< 2.500 g', cls: 'zc-warn' };
+  if (g < 3000) return { classLabel: 'Peso insuficiente', subLabel: '2.500 – 2.999 g', cls: 'zc-warn' };
+  if (g < 4000) return { classLabel: 'Peso normal / adequado', subLabel: '3.000 – 3.999 g', cls: 'zc-ok' };
+  if (g < 4500) return { classLabel: 'Macrossomia (peso elevado)', subLabel: '4.000 – 4.499 g', cls: 'zc-obs' };
+  return { classLabel: 'Tamanho excessivamente grande', subLabel: '≥ 4.500 g', cls: 'zc-obs' };
+}
+
+function updateRNClassif() {
+  const resultEl = document.getElementById('rn-classif-result');
+  if (!resultEl) return;
+  const semanasEl = document.getElementById('ig-semanas');
+  const diasEl = document.getElementById('ig-dias');
+  const pesoEl = document.getElementById('peso-nascer');
+  const semanas = semanasEl ? parseFloat(semanasEl.value) : NaN;
+  const dias = diasEl ? parseFloat(diasEl.value) : NaN;
+  const pesoG = pesoEl ? parseFloat(pesoEl.value) : NaN;
+  const igResult = classifyIG(semanas, dias);
+  const pesoResult = classifyPesoNascer(pesoG);
+  if (!igResult && !pesoResult) { resultEl.style.display = 'none'; return; }
+  const makeCard = (label, res) => res ? `
+    <div class="zscore-card">
+      <div class="zscore-label">${label}</div>
+      <div class="zscore-value" style="font-size:13px;line-height:1.3;">${res.classLabel}</div>
+      <div class="zscore-class ${res.cls}">${res.subLabel}</div>
+    </div>` : '';
+  resultEl.innerHTML = `
+    <div class="zscore-box-title">🍼 Classificação do Recém-Nascido</div>
+    <div class="zscore-grid">
+      ${makeCard('Classificação quanto à IG', igResult)}
+      ${makeCard('Classificação quanto ao peso', pesoResult)}
+    </div>`;
+  resultEl.style.display = '';
 }
 
 function calcAgeMonths(dnasc) {
