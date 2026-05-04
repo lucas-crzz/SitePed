@@ -1827,39 +1827,45 @@ function calcZscore(X, L, M, S) {
 }
 
 function classifyWFA(z) {
-  if (z === null) return { label: 'N/A', cls: 'zc-na' };
-  if (z < -3) return { label: 'Muito baixo peso', cls: 'zc-danger' };
-  if (z < -2) return { label: 'Baixo peso', cls: 'zc-warn' };
-  if (z <= 2) return { label: 'Peso adequado', cls: 'zc-ok' };
-  if (z <= 3) return { label: 'Peso elevado', cls: 'zc-warn' };
-  return { label: 'Peso muito elevado', cls: 'zc-danger' };
+  if (z === null) return { classLabel: '', cls: 'zc-na' };
+  if (z < -3) return { classLabel: 'Muito baixo peso para a idade', cls: 'zc-danger' };
+  if (z < -2) return { classLabel: 'Baixo peso para a idade', cls: 'zc-warn' };
+  if (z <= 2) return { classLabel: 'Peso adequado para a idade', cls: 'zc-ok' };
+  return { classLabel: 'Peso elevado para a idade', cls: 'zc-warn' };
 }
 
 function classifyLHFA(z) {
-  if (z === null) return { label: 'N/A', cls: 'zc-na' };
-  if (z < -3) return { label: 'Muito baixa estatura', cls: 'zc-danger' };
-  if (z < -2) return { label: 'Baixa estatura', cls: 'zc-warn' };
-  if (z <= 3) return { label: 'Estatura adequada', cls: 'zc-ok' };
-  return { label: 'Estatura muito alta', cls: 'zc-obs' };
+  if (z === null) return { classLabel: '', cls: 'zc-na' };
+  if (z < -3) return { classLabel: 'Muito baixa estatura para a idade', cls: 'zc-danger' };
+  if (z < -2) return { classLabel: 'Baixa estatura para a idade', cls: 'zc-warn' };
+  if (z <= 2) return { classLabel: 'Estatura adequada para a idade', cls: 'zc-ok' };
+  if (z <= 3) return { classLabel: 'Estatura elevada para a idade', cls: 'zc-obs' };
+  return { classLabel: 'Estatura muito elevada (raro)', cls: 'zc-obs' };
 }
 
-function classifyBFA(z) {
-  if (z === null) return { label: 'N/A', cls: 'zc-na' };
-  if (z < -3) return { label: 'Magreza acentuada', cls: 'zc-danger' };
-  if (z < -2) return { label: 'Magreza', cls: 'zc-warn' };
-  if (z <= 1) return { label: 'Eutrofia', cls: 'zc-ok' };
-  if (z <= 2) return { label: 'Sobrepeso', cls: 'zc-warn' };
-  if (z <= 3) return { label: 'Obesidade', cls: 'zc-danger' };
-  return { label: 'Obesidade grave', cls: 'zc-danger' };
+function classifyBFA(z, ageMonths) {
+  if (z === null) return { classLabel: '', cls: 'zc-na' };
+  if (z < -3) return { classLabel: 'Magreza acentuada', cls: 'zc-danger' };
+  if (z < -2) return { classLabel: 'Magreza', cls: 'zc-warn' };
+  if (z <= 1) return { classLabel: 'Eutrofia', cls: 'zc-ok' };
+  if (ageMonths <= 60) {
+    if (z <= 2) return { classLabel: 'Risco de sobrepeso', cls: 'zc-warn' };
+    if (z <= 3) return { classLabel: 'Sobrepeso', cls: 'zc-danger' };
+    return { classLabel: 'Obesidade', cls: 'zc-danger' };
+  } else {
+    if (z <= 2) return { classLabel: 'Sobrepeso', cls: 'zc-warn' };
+    if (z <= 3) return { classLabel: 'Obesidade', cls: 'zc-danger' };
+    return { classLabel: 'Obesidade grave', cls: 'zc-danger' };
+  }
 }
 
 function classifyHCFA(z) {
-  if (z === null) return { label: 'N/A', cls: 'zc-na' };
-  if (z < -3) return { label: 'Microcefalia grave', cls: 'zc-danger' };
-  if (z < -2) return { label: 'Microcefalia', cls: 'zc-warn' };
-  if (z <= 2) return { label: 'PC adequado', cls: 'zc-ok' };
-  if (z <= 3) return { label: 'Macrocefalia', cls: 'zc-warn' };
-  return { label: 'Macrocefalia grave', cls: 'zc-danger' };
+  if (z === null) return { classLabel: '', cls: 'zc-na' };
+  if (z < -3) return { classLabel: 'Microcefalia grave', cls: 'zc-danger' };
+  if (z < -2) return { classLabel: 'Microcefalia', cls: 'zc-warn' };
+  if (z <= 2) return { classLabel: 'PC adequado', cls: 'zc-ok' };
+  if (z <= 3) return { classLabel: 'Macrocefalia', cls: 'zc-warn' };
+  return { classLabel: 'Macrocefalia grave', cls: 'zc-danger' };
 }
 
 function calcAgeMonths(dnasc) {
@@ -1955,7 +1961,7 @@ function updateZscores(suffix) {
     { label: 'IMC calculado', value: fmtImc, cls: 'zc-na', classLabel: '' },
     { label: 'Z P/I (peso/idade)', value: fmtZ(zWFA), ...(ageMonths > 120 ? { cls: 'zc-na', classLabel: 'Não aplicável > 10a' } : classifyWFA(zWFA)) },
     { label: 'Z E/I (estatura/idade)', value: fmtZ(zLHFA), ...classifyLHFA(zLHFA) },
-    { label: 'Z IMC/I (IMC/idade)', value: fmtZ(zBFA), ...classifyBFA(zBFA) },
+    { label: 'Z IMC/I (IMC/idade)', value: fmtZ(zBFA), ...classifyBFA(zBFA, ageMonths) },
     ...(ageMonths <= 60 ? [{ label: 'Z PC/I (PC/idade)', value: fmtZ(zHCFA), ...classifyHCFA(zHCFA) }] : [])
   ];
 
