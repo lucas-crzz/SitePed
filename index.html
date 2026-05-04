@@ -139,6 +139,21 @@
   .reference-card h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #334155; margin-bottom: 8px; }
   .reference-card img { width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0; }
 
+  /* Z-SCORE CALCULATOR */
+  .zscore-box { border-radius: 10px; border: 1px solid var(--line); overflow: hidden; margin-top: 6px; }
+  .zscore-box-title { padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: var(--teal-light); color: var(--teal); }
+  .zscore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0; }
+  .zscore-card { padding: 10px 14px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .zscore-card:last-child { border-right: none; }
+  .zscore-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 3px; }
+  .zscore-value { font-size: 20px; font-weight: 700; color: var(--navy); }
+  .zscore-class { font-size: 11px; font-weight: 600; margin-top: 2px; }
+  .zc-ok { color: #276749; }
+  .zc-warn { color: #c05621; }
+  .zc-danger { color: var(--red); }
+  .zc-obs { color: #6b46c1; }
+  .zc-na { color: var(--muted); }
+
   /* PRINT STYLES */
   @media print {
     .tabs, .toolbar, .header, .intro-badge { display: none !important; }
@@ -211,8 +226,21 @@
           <input type="text" class="field-input" id="nome-crianca-first" placeholder="Nome completo">
         </div>
         <div class="field-group">
-          <label class="field-label">Idade</label>
-          <input type="text" class="field-input" placeholder="ex: 3 anos e 2 meses">
+          <label class="field-label">Idade calculada</label>
+          <input type="text" class="field-input" id="idade-calc-first" placeholder="Preencha a Data de Nasc." readonly style="background:#f8fafb">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Sexo</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="sexo-f" value="M"> Masculino</label>
+            <label class="radio-btn"><input type="radio" name="sexo-f" value="F"> Feminino</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Data de Nascimento</label>
+          <input type="date" class="field-input" id="dnasc-first">
         </div>
       </div>
       <div class="field-row">
@@ -636,15 +664,15 @@
       <div class="field-row-3">
         <div class="field-group">
           <label class="field-label">Peso</label>
-          <input type="text" class="field-input" placeholder="ex: 14,2 kg">
+          <input type="number" step="0.01" min="0" class="field-input" id="peso-first" placeholder="ex: 14.2">
         </div>
         <div class="field-group">
           <label class="field-label">Estatura</label>
-          <input type="text" class="field-input" placeholder="ex: 96 cm">
+          <input type="number" step="0.1" min="0" class="field-input" id="estatura-first" placeholder="ex: 96.0">
         </div>
         <div class="field-group">
           <label class="field-label">IMC</label>
-          <input type="text" class="field-input" placeholder="ex: 15,4 kg/m²">
+          <input type="text" class="field-input" id="imc-first" placeholder="calculado automaticamente" readonly style="background:#f8fafb">
         </div>
       </div>
       <div class="field-row-3">
@@ -672,9 +700,10 @@
         </div>
         <div class="field-group">
           <label class="field-label">Perímetro cefálico</label>
-          <input type="text" class="field-input" placeholder="ex: 49 cm">
+          <input type="number" step="0.1" min="0" class="field-input" id="pc-first" placeholder="ex: 49.0">
         </div>
       </div>
+      <div id="zscore-result-first" class="zscore-box" style="display:none; margin-top:14px;"></div>
       <div class="field-group">
         <label class="field-label">Exame físico segmentar</label>
         <textarea class="field-textarea tall" id="exame-objetivo-first" placeholder="Estado geral, hidratação, pele, ORL, aparelho respiratório, cardiovascular, abdome, neurologia, etc."></textarea>
@@ -755,8 +784,21 @@
           <input type="text" class="field-input" id="nome-crianca-follow" placeholder="Nome completo">
         </div>
         <div class="field-group">
-          <label class="field-label">Idade</label>
-          <input type="text" class="field-input" placeholder="ex: 3 anos e 2 meses">
+          <label class="field-label">Idade calculada</label>
+          <input type="text" class="field-input" id="idade-calc-follow" placeholder="Preencha a Data de Nasc." readonly style="background:#f8fafb">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Sexo</label>
+          <div class="radio-group">
+            <label class="radio-btn"><input type="radio" name="sexo-s" value="M"> Masculino</label>
+            <label class="radio-btn"><input type="radio" name="sexo-s" value="F"> Feminino</label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Data de Nascimento</label>
+          <input type="date" class="field-input" id="dnasc-follow">
         </div>
       </div>
       <div class="field-row">
@@ -1053,15 +1095,15 @@
       <div class="field-row-3">
         <div class="field-group">
           <label class="field-label">Peso atual</label>
-          <input type="text" class="field-input" placeholder="ex: 15,0 kg">
+          <input type="number" step="0.01" min="0" class="field-input" id="peso-follow" placeholder="ex: 15.0">
         </div>
         <div class="field-group">
           <label class="field-label">Estatura atual</label>
-          <input type="text" class="field-input" placeholder="ex: 98 cm">
+          <input type="number" step="0.1" min="0" class="field-input" id="estatura-follow" placeholder="ex: 98.0">
         </div>
         <div class="field-group">
           <label class="field-label">IMC atual</label>
-          <input type="text" class="field-input" placeholder="ex: 15,6 kg/m²">
+          <input type="text" class="field-input" id="imc-follow" placeholder="calculado automaticamente" readonly style="background:#f8fafb">
         </div>
       </div>
       <div class="field-row-3">
@@ -1089,9 +1131,10 @@
         </div>
         <div class="field-group">
           <label class="field-label">Perímetro cefálico</label>
-          <input type="text" class="field-input" placeholder="ex: 49,5 cm">
+          <input type="number" step="0.1" min="0" class="field-input" id="pc-follow" placeholder="ex: 49.5">
         </div>
       </div>
+      <div id="zscore-result-follow" class="zscore-box" style="display:none; margin-top:14px;"></div>
       <div class="field-group">
         <label class="field-label">Exame físico segmentar (evolução)</label>
         <textarea class="field-textarea tall" id="exame-objetivo-follow" placeholder="Descreva evolução dos achados objetivos em relação à consulta anterior."></textarea>
@@ -1205,7 +1248,7 @@
 <section class="print-sheet" id="soap-print-sheet"></section>
 
 <script>
-  const STORAGE_KEY = 'prontuario-pediatria-soap-v4';
+  const STORAGE_KEY = 'prontuario-pediatria-soap-v5';
   let currentTab = 'first';
   let saveTimer;
   let isRestoringDraft = false;
@@ -1268,7 +1311,7 @@
 
   function saveDraft(manual = false) {
     const payload = {
-      version: 4,
+      version: 5,
       currentTab,
       savedAt: new Date().toISOString(),
       fields: collectFormState()
@@ -1296,7 +1339,7 @@
       return;
     }
 
-    if (!payload || payload.version !== 4 || !Array.isArray(payload.fields)) {
+    if (!payload || payload.version !== 5 || !Array.isArray(payload.fields)) {
       updateSaveStatus('Rascunho incompatível. Novo preenchimento iniciado.', true);
       return;
     }
@@ -1307,6 +1350,8 @@
       ? payload.currentTab : 'first');
     isRestoringDraft = false;
     updateSaveStatus('Rascunho restaurado com sucesso.');
+    updateZscores('first');
+    updateZscores('follow');
   }
 
   function limparFormulario() {
@@ -1533,6 +1578,415 @@
   loadDraft();
   Array.from(document.querySelectorAll('input, textarea')).forEach((el) => updateFieldFilled(el));
   buildSoapDocument();
+</script>
+<script>
+/* ============================================================
+   WHO Z-SCORE & BMI CALCULATOR
+   WHO 2006 (0–60 months) + WHO 2007 Reference (61–228 months)
+   ============================================================ */
+
+// WHO 2006 Weight-for-Age Boys (0–60 months)
+const WHO_WFA_BOYS = [
+  [0,-0.3521,3.3464,0.14602],[1,-0.3521,4.4709,0.13395],[2,-0.3521,5.5675,0.12385],
+  [3,-0.3521,6.3762,0.11716],[4,-0.3521,7.0023,0.11335],[5,-0.3521,7.5105,0.11053],
+  [6,-0.3521,7.9340,0.10814],[7,-0.3521,8.2970,0.10631],[8,-0.3521,8.6151,0.10489],
+  [9,-0.3521,8.9014,0.10379],[10,-0.3521,9.1649,0.10294],[11,-0.3521,9.4122,0.10230],
+  [12,-0.3521,9.6479,0.10180],[13,-0.3521,9.8749,0.10138],[14,-0.3521,10.0953,0.10104],
+  [15,-0.3521,10.3108,0.10077],[16,-0.3521,10.5228,0.10057],[17,-0.3521,10.7319,0.10042],
+  [18,-0.3521,10.9385,0.10032],[19,-0.3521,11.1426,0.10027],[20,-0.3521,11.3437,0.10025],
+  [21,-0.3521,11.5420,0.10026],[22,-0.3521,11.7372,0.10030],[23,-0.3521,11.9291,0.10037],
+  [24,-0.3521,12.1170,0.10047],[25,-0.3521,12.3026,0.10059],[26,-0.3521,12.4884,0.10073],
+  [27,-0.3521,12.6746,0.10090],[28,-0.3521,12.8627,0.10109],[29,-0.3521,13.0530,0.10130],
+  [30,-0.3521,13.2461,0.10153],[31,-0.3521,13.4424,0.10178],[32,-0.3521,13.6418,0.10204],
+  [33,-0.3521,13.8445,0.10232],[34,-0.3521,14.0508,0.10261],[35,-0.3521,14.2604,0.10291],
+  [36,-0.3521,14.4731,0.10322],[37,-0.3521,14.6890,0.10355],[38,-0.3521,14.9073,0.10388],
+  [39,-0.3521,15.1278,0.10423],[40,-0.3521,15.3502,0.10460],[41,-0.3521,15.5743,0.10497],
+  [42,-0.3521,15.7998,0.10536],[43,-0.3521,16.0262,0.10575],[44,-0.3521,16.2530,0.10616],
+  [45,-0.3521,16.4802,0.10657],[46,-0.3521,16.7073,0.10699],[47,-0.3521,16.9338,0.10741],
+  [48,-0.3521,17.1589,0.10784],[49,-0.3521,17.3817,0.10827],[50,-0.3521,17.6009,0.10870],
+  [51,-0.3521,17.8153,0.10914],[52,-0.3521,18.0237,0.10957],[53,-0.3521,18.2249,0.11000],
+  [54,-0.3521,18.4176,0.11043],[55,-0.3521,18.6001,0.11086],[56,-0.3521,18.7708,0.11129],
+  [57,-0.3521,18.9291,0.11171],[58,-0.3521,19.0779,0.11212],[59,-0.3521,19.2186,0.11252],
+  [60,-0.3521,19.3527,0.11291]
+];
+
+// WHO 2006 Weight-for-Age Girls (0–60 months)
+const WHO_WFA_GIRLS = [
+  [0,-0.3530,3.2322,0.14171],[1,-0.3530,4.1873,0.13724],[2,-0.3530,5.1282,0.13000],
+  [3,-0.3530,5.8458,0.12619],[4,-0.3530,6.4237,0.12267],[5,-0.3530,6.8985,0.11966],
+  [6,-0.3530,7.2970,0.11709],[7,-0.3530,7.6422,0.11494],[8,-0.3530,7.9487,0.11317],
+  [9,-0.3530,8.2254,0.11168],[10,-0.3530,8.4800,0.11043],[11,-0.3530,8.7192,0.10940],
+  [12,-0.3530,8.9481,0.10856],[13,-0.3530,9.1699,0.10789],[14,-0.3530,9.3870,0.10739],
+  [15,-0.3530,9.6008,0.10703],[16,-0.3530,9.8124,0.10682],[17,-0.3530,10.0228,0.10674],
+  [18,-0.3530,10.2332,0.10680],[19,-0.3530,10.4441,0.10700],[20,-0.3530,10.6561,0.10729],
+  [21,-0.3530,10.8696,0.10768],[22,-0.3530,11.0855,0.10818],[23,-0.3530,11.3044,0.10876],
+  [24,-0.3530,11.5271,0.10945],[25,-0.3530,11.7538,0.11020],[26,-0.3530,11.9851,0.11100],
+  [27,-0.3530,12.2214,0.11184],[28,-0.3530,12.4631,0.11271],[29,-0.3530,12.7103,0.11360],
+  [30,-0.3530,12.9633,0.11451],[31,-0.3530,13.2219,0.11543],[32,-0.3530,13.4862,0.11636],
+  [33,-0.3530,13.7561,0.11729],[34,-0.3530,14.0314,0.11821],[35,-0.3530,14.3119,0.11912],
+  [36,-0.3530,14.5974,0.12002],[37,-0.3530,14.8875,0.12089],[38,-0.3530,15.1818,0.12174],
+  [39,-0.3530,15.4798,0.12257],[40,-0.3530,15.7810,0.12337],[41,-0.3530,16.0848,0.12415],
+  [42,-0.3530,16.3903,0.12490],[43,-0.3530,16.6968,0.12562],[44,-0.3530,17.0036,0.12630],
+  [45,-0.3530,17.3098,0.12695],[46,-0.3530,17.6144,0.12756],[47,-0.3530,17.9163,0.12813],
+  [48,-0.3530,18.2142,0.12866],[49,-0.3530,18.5068,0.12915],[50,-0.3530,18.7930,0.12960],
+  [51,-0.3530,19.0712,0.13001],[52,-0.3530,19.3400,0.13037],[53,-0.3530,19.5987,0.13070],
+  [54,-0.3530,19.8462,0.13099],[55,-0.3530,20.0820,0.13124],[56,-0.3530,20.3059,0.13146],
+  [57,-0.3530,20.5175,0.13164],[58,-0.3530,20.7165,0.13178],[59,-0.3530,20.9030,0.13190],
+  [60,-0.3530,21.0774,0.13198]
+];
+
+// WHO 2006 Length/Height-for-Age Boys (0–60 months)
+const WHO_LHFA_BOYS = [
+  [0,1,49.8842,0.03795],[1,1,54.7244,0.03557],[2,1,58.4249,0.03424],[3,1,61.4292,0.03328],
+  [4,1,63.8860,0.03257],[5,1,65.9026,0.03204],[6,1,67.6236,0.03165],[7,1,69.1645,0.03139],
+  [8,1,70.5994,0.03124],[9,1,71.9687,0.03117],[10,1,73.2812,0.03115],[11,1,74.5388,0.03118],
+  [12,1,75.7488,0.03122],[13,1,76.9186,0.03128],[14,1,78.0497,0.03135],[15,1,79.1458,0.03143],
+  [16,1,80.2113,0.03152],[17,1,81.2487,0.03162],[18,1,82.2587,0.03172],[19,1,83.2418,0.03183],
+  [20,1,84.1996,0.03194],[21,1,85.1348,0.03206],[22,1,86.0477,0.03218],[23,1,86.9393,0.03231],
+  [24,1,87.8161,0.03244],[25,1,88.6791,0.03258],[26,1,89.5267,0.03271],[27,1,90.3600,0.03284],
+  [28,1,91.1800,0.03298],[29,1,91.9866,0.03312],[30,1,92.7806,0.03325],[31,1,93.5626,0.03339],
+  [32,1,94.3332,0.03353],[33,1,95.0929,0.03367],[34,1,95.8426,0.03381],[35,1,96.5826,0.03396],
+  [36,1,97.3136,0.03410],[37,1,98.0368,0.03424],[38,1,98.7522,0.03438],[39,1,99.4607,0.03451],
+  [40,1,100.1630,0.03465],[41,1,100.8591,0.03479],[42,1,101.5497,0.03492],[43,1,102.2358,0.03506],
+  [44,1,102.9173,0.03520],[45,1,103.5949,0.03534],[46,1,104.2694,0.03548],[47,1,104.9411,0.03562],
+  [48,1,105.6105,0.03575],[49,1,106.2782,0.03589],[50,1,106.9444,0.03603],[51,1,107.6099,0.03617],
+  [52,1,108.2747,0.03631],[53,1,108.9394,0.03645],[54,1,109.6043,0.03659],[55,1,110.2700,0.03672],
+  [56,1,110.9368,0.03686],[57,1,111.6049,0.03700],[58,1,112.2749,0.03714],[59,1,112.9469,0.03727],
+  [60,1,113.6216,0.03741]
+];
+
+// WHO 2006 Length/Height-for-Age Girls (0–60 months)
+const WHO_LHFA_GIRLS = [
+  [0,1,49.1477,0.03790],[1,1,53.6872,0.03627],[2,1,57.0673,0.03490],[3,1,59.8029,0.03385],
+  [4,1,62.0899,0.03310],[5,1,64.0301,0.03256],[6,1,65.7311,0.03219],[7,1,67.2873,0.03197],
+  [8,1,68.7498,0.03185],[9,1,70.1435,0.03182],[10,1,71.4818,0.03186],[11,1,72.7710,0.03196],
+  [12,1,74.0150,0.03208],[13,1,75.2176,0.03224],[14,1,76.3817,0.03241],[15,1,77.5099,0.03260],
+  [16,1,78.6055,0.03278],[17,1,79.6710,0.03297],[18,1,80.7079,0.03317],[19,1,81.7182,0.03337],
+  [20,1,82.7036,0.03357],[21,1,83.6654,0.03376],[22,1,84.6048,0.03396],[23,1,85.5228,0.03416],
+  [24,1,86.4202,0.03436],[25,1,87.2983,0.03457],[26,1,88.1577,0.03478],[27,1,88.9994,0.03499],
+  [28,1,89.8238,0.03520],[29,1,90.6313,0.03540],[30,1,91.4227,0.03561],[31,1,92.1983,0.03582],
+  [32,1,92.9588,0.03603],[33,1,93.7044,0.03624],[34,1,94.4357,0.03645],[35,1,95.1530,0.03666],
+  [36,1,95.8568,0.03687],[37,1,96.5477,0.03707],[38,1,97.2259,0.03728],[39,1,97.8920,0.03749],
+  [40,1,98.5462,0.03770],[41,1,99.1891,0.03791],[42,1,99.8210,0.03812],[43,1,100.4423,0.03833],
+  [44,1,101.0535,0.03854],[45,1,101.6550,0.03874],[46,1,102.2474,0.03895],[47,1,102.8310,0.03915],
+  [48,1,103.4063,0.03936],[49,1,103.9737,0.03956],[50,1,104.5338,0.03976],[51,1,105.0869,0.03997],
+  [52,1,105.6334,0.04017],[53,1,106.1737,0.04037],[54,1,106.7082,0.04057],[55,1,107.2374,0.04077],
+  [56,1,107.7615,0.04097],[57,1,108.2810,0.04117],[58,1,108.7962,0.04137],[59,1,109.3074,0.04157],
+  [60,1,109.8150,0.04177]
+];
+
+// WHO 2006 BMI-for-Age Boys (0–60 months)
+const WHO_BFA_BOYS = [
+  [0,2.1,13.4069,0.09894],[1,2.1,14.8577,0.09776],[2,2.1,16.0189,0.09680],[3,2.1,16.3435,0.09619],
+  [4,2.1,16.1944,0.09605],[5,2.1,15.9614,0.09548],[6,2.1,15.7207,0.09499],[7,2.1,15.4981,0.09440],
+  [8,2.1,15.3015,0.09384],[9,2.1,15.1344,0.09330],[10,2.1,14.9914,0.09280],[11,2.1,14.8708,0.09234],
+  [12,2.1,14.8127,0.09197],[13,2.1,14.7524,0.09166],[14,2.1,14.7005,0.09142],[15,2.1,14.6560,0.09125],
+  [16,2.1,14.6176,0.09114],[17,2.1,14.5843,0.09108],[18,2.1,14.5553,0.09108],[19,2.1,14.5298,0.09113],
+  [20,2.1,14.5073,0.09123],[21,2.1,14.4871,0.09137],[22,2.1,14.4688,0.09155],[23,2.1,14.4519,0.09175],
+  [24,2.1,14.4362,0.09198],[25,2.1,14.4207,0.09224],[26,2.1,14.4048,0.09252],[27,2.1,14.3887,0.09281],
+  [28,2.1,14.3721,0.09311],[29,2.1,14.3548,0.09342],[30,2.1,14.3369,0.09374],[31,2.1,14.3184,0.09406],
+  [32,2.1,14.2993,0.09439],[33,2.1,14.2797,0.09472],[34,2.1,14.2595,0.09505],[35,2.1,14.2388,0.09539],
+  [36,2.1,14.2178,0.09573],[37,2.1,14.1965,0.09607],[38,2.1,14.1749,0.09641],[39,2.1,14.1530,0.09676],
+  [40,2.1,14.1311,0.09710],[41,2.1,14.1090,0.09745],[42,2.1,14.0870,0.09779],[43,2.1,14.0649,0.09814],
+  [44,2.1,14.0429,0.09849],[45,2.1,14.0211,0.09883],[46,2.1,13.9994,0.09918],[47,2.1,13.9780,0.09952],
+  [48,2.1,13.9568,0.09987],[49,2.1,13.9360,0.10021],[50,2.1,13.9155,0.10055],[51,2.1,13.8954,0.10090],
+  [52,2.1,13.8757,0.10124],[53,2.1,13.8564,0.10158],[54,2.1,13.8375,0.10192],[55,2.1,13.8190,0.10226],
+  [56,2.1,13.8009,0.10260],[57,2.1,13.7833,0.10293],[58,2.1,13.7661,0.10327],[59,2.1,13.7494,0.10360],
+  [60,2.1,13.7331,0.10393]
+];
+
+// WHO 2006 BMI-for-Age Girls (0–60 months)
+const WHO_BFA_GIRLS = [
+  [0,2.0,13.3363,0.09576],[1,2.0,14.6070,0.09520],[2,2.0,15.6543,0.09540],[3,2.0,15.7780,0.09573],
+  [4,2.0,15.6183,0.09537],[5,2.0,15.3773,0.09469],[6,2.0,15.1327,0.09398],[7,2.0,14.9028,0.09329],
+  [8,2.0,14.6944,0.09266],[9,2.0,14.5077,0.09212],[10,2.0,14.3395,0.09165],[11,2.0,14.1878,0.09125],
+  [12,2.0,14.0817,0.09098],[13,2.0,14.0001,0.09083],[14,2.0,13.9288,0.09073],[15,2.0,13.8681,0.09067],
+  [16,2.0,13.8187,0.09064],[17,2.0,13.7793,0.09065],[18,2.0,13.7494,0.09068],[19,2.0,13.7277,0.09073],
+  [20,2.0,13.7136,0.09081],[21,2.0,13.7055,0.09091],[22,2.0,13.7027,0.09103],[23,2.0,13.7046,0.09117],
+  [24,2.0,13.7102,0.09132],[25,2.0,13.7184,0.09148],[26,2.0,13.7282,0.09165],[27,2.0,13.7389,0.09182],
+  [28,2.0,13.7501,0.09199],[29,2.0,13.7613,0.09217],[30,2.0,13.7721,0.09235],[31,2.0,13.7822,0.09253],
+  [32,2.0,13.7914,0.09272],[33,2.0,13.7994,0.09290],[34,2.0,13.8061,0.09309],[35,2.0,13.8113,0.09328],
+  [36,2.0,13.8148,0.09347],[37,2.0,13.8165,0.09366],[38,2.0,13.8162,0.09386],[39,2.0,13.8139,0.09405],
+  [40,2.0,13.8095,0.09424],[41,2.0,13.8029,0.09444],[42,2.0,13.7940,0.09463],[43,2.0,13.7828,0.09483],
+  [44,2.0,13.7693,0.09503],[45,2.0,13.7534,0.09523],[46,2.0,13.7352,0.09543],[47,2.0,13.7147,0.09563],
+  [48,2.0,13.6919,0.09583],[49,2.0,13.6668,0.09603],[50,2.0,13.6395,0.09623],[51,2.0,13.6100,0.09643],
+  [52,2.0,13.5785,0.09663],[53,2.0,13.5450,0.09683],[54,2.0,13.5096,0.09703],[55,2.0,13.4724,0.09723],
+  [56,2.0,13.4336,0.09742],[57,2.0,13.3933,0.09761],[58,2.0,13.3515,0.09781],[59,2.0,13.3086,0.09800],
+  [60,2.0,13.2648,0.09819]
+];
+
+// WHO 2006 Head Circumference-for-Age Boys (0–60 months)
+const WHO_HCFA_BOYS = [
+  [0,1,34.4618,0.03686],[1,1,37.2759,0.03133],[2,1,39.1285,0.02910],[3,1,40.5135,0.02810],
+  [4,1,41.6317,0.02797],[5,1,42.5600,0.02810],[6,1,43.3286,0.02830],[7,1,43.9690,0.02836],
+  [8,1,44.4967,0.02837],[9,1,44.9397,0.02836],[10,1,45.3130,0.02830],[11,1,45.6260,0.02824],
+  [12,1,45.8934,0.02819],[13,1,46.1217,0.02816],[14,1,46.3163,0.02814],[15,1,46.4823,0.02814],
+  [16,1,46.6247,0.02815],[17,1,46.7474,0.02817],[18,1,46.8539,0.02819],[19,1,46.9468,0.02822],
+  [20,1,47.0289,0.02825],[21,1,47.1018,0.02829],[22,1,47.1670,0.02832],[23,1,47.2254,0.02836],
+  [24,1,47.2780,0.02841],[25,1,47.3252,0.02845],[26,1,47.3677,0.02849],[27,1,47.4059,0.02854],
+  [28,1,47.4404,0.02859],[29,1,47.4715,0.02863],[30,1,47.4996,0.02868],[31,1,47.5250,0.02873],
+  [32,1,47.5479,0.02878],[33,1,47.5687,0.02883],[34,1,47.5876,0.02888],[35,1,47.6047,0.02893],
+  [36,1,47.6203,0.02898],[37,1,47.6345,0.02903],[38,1,47.6474,0.02908],[39,1,47.6591,0.02913],
+  [40,1,47.6699,0.02918],[41,1,47.6797,0.02923],[42,1,47.6888,0.02928],[43,1,47.6971,0.02933],
+  [44,1,47.7047,0.02938],[45,1,47.7119,0.02943],[46,1,47.7185,0.02948],[47,1,47.7247,0.02953],
+  [48,1,47.7306,0.02958],[49,1,47.7361,0.02963],[50,1,47.7413,0.02968],[51,1,47.7463,0.02973],
+  [52,1,47.7510,0.02978],[53,1,47.7556,0.02983],[54,1,47.7600,0.02988],[55,1,47.7643,0.02993],
+  [56,1,47.7685,0.02998],[57,1,47.7725,0.03003],[58,1,47.7765,0.03008],[59,1,47.7804,0.03013],
+  [60,1,47.7843,0.03018]
+];
+
+// WHO 2006 Head Circumference-for-Age Girls (0–60 months)
+const WHO_HCFA_GIRLS = [
+  [0,1,33.8787,0.03496],[1,1,36.5463,0.02980],[2,1,38.2521,0.02780],[3,1,39.5328,0.02730],
+  [4,1,40.5817,0.02730],[5,1,41.4682,0.02750],[6,1,42.2018,0.02763],[7,1,42.8166,0.02766],
+  [8,1,43.3309,0.02763],[9,1,43.7625,0.02759],[10,1,44.1231,0.02753],[11,1,44.4225,0.02748],
+  [12,1,44.6697,0.02745],[13,1,44.8832,0.02743],[14,1,45.0647,0.02741],[15,1,45.2205,0.02740],
+  [16,1,45.3577,0.02740],[17,1,45.4800,0.02741],[18,1,45.5897,0.02742],[19,1,45.6882,0.02743],
+  [20,1,45.7775,0.02745],[21,1,45.8593,0.02748],[22,1,45.9342,0.02751],[23,1,46.0030,0.02754],
+  [24,1,46.0663,0.02757],[25,1,46.1248,0.02760],[26,1,46.1790,0.02764],[27,1,46.2295,0.02768],
+  [28,1,46.2766,0.02771],[29,1,46.3206,0.02775],[30,1,46.3618,0.02779],[31,1,46.4005,0.02783],
+  [32,1,46.4370,0.02787],[33,1,46.4715,0.02791],[34,1,46.5041,0.02795],[35,1,46.5350,0.02800],
+  [36,1,46.5644,0.02804],[37,1,46.5924,0.02808],[38,1,46.6191,0.02813],[39,1,46.6446,0.02817],
+  [40,1,46.6691,0.02822],[41,1,46.6927,0.02826],[42,1,46.7154,0.02831],[43,1,46.7373,0.02836],
+  [44,1,46.7585,0.02841],[45,1,46.7790,0.02845],[46,1,46.7989,0.02850],[47,1,46.8183,0.02855],
+  [48,1,46.8373,0.02860],[49,1,46.8558,0.02865],[50,1,46.8740,0.02870],[51,1,46.8919,0.02875],
+  [52,1,46.9095,0.02880],[53,1,46.9268,0.02885],[54,1,46.9440,0.02890],[55,1,46.9609,0.02895],
+  [56,1,46.9777,0.02900],[57,1,46.9944,0.02905],[58,1,47.0109,0.02910],[59,1,47.0273,0.02915],
+  [60,1,47.0436,0.02920]
+];
+
+// WHO 2007 BMI-for-Age Boys (61–228 months)
+const WHO_BFA_BOYS_5_19 = [
+  [61,-1.3608,15.2386,0.13687],[72,-1.3608,15.3226,0.14650],[84,-1.5540,15.5017,0.15695],
+  [96,-1.5540,15.8389,0.16758],[108,-1.5540,16.2982,0.17659],[120,-1.5540,16.8617,0.18393],
+  [132,-1.5540,17.5049,0.18993],[144,-1.5540,18.1981,0.19465],[156,-1.5540,18.9162,0.19832],
+  [168,-1.5540,19.6397,0.20101],[180,-1.5540,20.3545,0.20270],[192,-1.5540,21.0490,0.20341],
+  [204,-1.5540,21.7122,0.20317],[216,-1.5540,22.3346,0.20200],[228,-1.5540,22.9080,0.19994]
+];
+
+// WHO 2007 BMI-for-Age Girls (61–228 months)
+const WHO_BFA_GIRLS_5_19 = [
+  [61,-1.9050,15.2176,0.12861],[72,-1.9050,15.4508,0.13805],[84,-1.9050,15.7807,0.14836],
+  [96,-1.9050,16.2151,0.15835],[108,-1.9050,16.7352,0.16741],[120,-1.9050,17.3229,0.17529],
+  [132,-1.9050,17.9603,0.18187],[144,-1.9050,18.6320,0.18726],[156,-1.9050,19.3208,0.19166],
+  [168,-1.9050,20.0090,0.19516],[180,-1.9050,20.6773,0.19769],[192,-1.9050,21.3075,0.19916],
+  [204,-1.9050,21.8813,0.19952],[216,-1.9050,22.3900,0.19880],[228,-1.9050,22.8307,0.19713]
+];
+
+// WHO 2007 Height-for-Age Boys (61–228 months)
+const WHO_HFA_BOYS_5_19 = [
+  [61,1,109.587,0.04089],[72,1,116.010,0.03980],[84,1,121.700,0.03882],[96,1,127.000,0.03813],
+  [108,1,132.200,0.03784],[120,1,137.500,0.03800],[132,1,143.100,0.03847],[144,1,148.800,0.03902],
+  [156,1,154.400,0.03917],[168,1,160.600,0.03857],[180,1,166.000,0.03748],[192,1,169.600,0.03634],
+  [204,1,171.500,0.03521],[216,1,172.400,0.03441],[228,1,172.900,0.03395]
+];
+
+// WHO 2007 Height-for-Age Girls (61–228 months)
+const WHO_HFA_GIRLS_5_19 = [
+  [61,1,109.173,0.04150],[72,1,114.670,0.04000],[84,1,120.070,0.03900],[96,1,125.365,0.03856],
+  [108,1,131.000,0.03851],[120,1,136.495,0.03878],[132,1,141.900,0.03924],[144,1,147.500,0.03946],
+  [156,1,152.700,0.03930],[168,1,156.900,0.03882],[180,1,159.600,0.03821],[192,1,161.000,0.03756],
+  [204,1,161.800,0.03700],[216,1,162.000,0.03660],[228,1,162.100,0.03630]
+];
+
+function lmsInterpolate(table, ageMonths) {
+  if (!table || table.length === 0) return null;
+  if (ageMonths <= table[0][0]) return { L: table[0][1], M: table[0][2], S: table[0][3] };
+  if (ageMonths >= table[table.length - 1][0]) {
+    const last = table[table.length - 1];
+    return { L: last[1], M: last[2], S: last[3] };
+  }
+  let lo = 0, hi = table.length - 1;
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (table[mid][0] <= ageMonths) lo = mid; else hi = mid;
+  }
+  const t = (ageMonths - table[lo][0]) / (table[hi][0] - table[lo][0]);
+  return {
+    L: table[lo][1] + t * (table[hi][1] - table[lo][1]),
+    M: table[lo][2] + t * (table[hi][2] - table[lo][2]),
+    S: table[lo][3] + t * (table[hi][3] - table[lo][3])
+  };
+}
+
+function calcZscore(X, L, M, S) {
+  if (X == null || isNaN(X) || X <= 0) return null;
+  let Z;
+  if (Math.abs(L) < 0.001) {
+    Z = Math.log(X / M) / S;
+  } else {
+    Z = (Math.pow(X / M, L) - 1) / (L * S);
+  }
+  const SD3pos = M * Math.pow(1 + L * S * 3, 1 / L);
+  const SD2pos = M * Math.pow(1 + L * S * 2, 1 / L);
+  const SD3neg = M * Math.pow(1 + L * S * -3, 1 / L);
+  const SD2neg = M * Math.pow(1 + L * S * -2, 1 / L);
+  if (Z > 3 && (SD3pos - SD2pos) > 0) Z = 3 + (X - SD3pos) / (SD3pos - SD2pos);
+  if (Z < -3 && (SD2neg - SD3neg) > 0) Z = -3 - (SD3neg - X) / (SD2neg - SD3neg);
+  return Math.round(Z * 100) / 100;
+}
+
+function classifyWFA(z) {
+  if (z === null) return { label: 'N/A', cls: 'zc-na' };
+  if (z < -3) return { label: 'Muito baixo peso', cls: 'zc-danger' };
+  if (z < -2) return { label: 'Baixo peso', cls: 'zc-warn' };
+  if (z <= 2) return { label: 'Peso adequado', cls: 'zc-ok' };
+  if (z <= 3) return { label: 'Peso elevado', cls: 'zc-warn' };
+  return { label: 'Peso muito elevado', cls: 'zc-danger' };
+}
+
+function classifyLHFA(z) {
+  if (z === null) return { label: 'N/A', cls: 'zc-na' };
+  if (z < -3) return { label: 'Muito baixa estatura', cls: 'zc-danger' };
+  if (z < -2) return { label: 'Baixa estatura', cls: 'zc-warn' };
+  if (z <= 3) return { label: 'Estatura adequada', cls: 'zc-ok' };
+  return { label: 'Estatura muito alta', cls: 'zc-obs' };
+}
+
+function classifyBFA(z) {
+  if (z === null) return { label: 'N/A', cls: 'zc-na' };
+  if (z < -3) return { label: 'Magreza acentuada', cls: 'zc-danger' };
+  if (z < -2) return { label: 'Magreza', cls: 'zc-warn' };
+  if (z <= 1) return { label: 'Eutrofia', cls: 'zc-ok' };
+  if (z <= 2) return { label: 'Sobrepeso', cls: 'zc-warn' };
+  if (z <= 3) return { label: 'Obesidade', cls: 'zc-danger' };
+  return { label: 'Obesidade grave', cls: 'zc-danger' };
+}
+
+function classifyHCFA(z) {
+  if (z === null) return { label: 'N/A', cls: 'zc-na' };
+  if (z < -3) return { label: 'Microcefalia grave', cls: 'zc-danger' };
+  if (z < -2) return { label: 'Microcefalia', cls: 'zc-warn' };
+  if (z <= 2) return { label: 'PC adequado', cls: 'zc-ok' };
+  if (z <= 3) return { label: 'Macrocefalia', cls: 'zc-warn' };
+  return { label: 'Macrocefalia grave', cls: 'zc-danger' };
+}
+
+function calcAgeMonths(dnasc) {
+  if (!dnasc) return null;
+  const birth = new Date(dnasc);
+  const now = new Date();
+  if (isNaN(birth.getTime())) return null;
+  const totalMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+  const dayOffset = now.getDate() >= birth.getDate() ? 0 : -1;
+  return Math.max(0, totalMonths + dayOffset);
+}
+
+function formatIdade(ageMonths) {
+  if (ageMonths === null) return '';
+  const years = Math.floor(ageMonths / 12);
+  const months = ageMonths % 12;
+  if (years === 0) return `${months} ${months === 1 ? 'mês' : 'meses'}`;
+  if (months === 0) return `${years} ${years === 1 ? 'ano' : 'anos'}`;
+  return `${years} ${years === 1 ? 'ano' : 'anos'} e ${months} ${months === 1 ? 'mês' : 'meses'}`;
+}
+
+function updateZscores(suffix) {
+  const dnascEl = document.getElementById(`dnasc-${suffix}`);
+  const sexRadio = document.querySelector(`input[name="${suffix === 'first' ? 'sexo-f' : 'sexo-s'}"]:checked`);
+  const pesoEl = document.getElementById(`peso-${suffix}`);
+  const estaturaEl = document.getElementById(`estatura-${suffix}`);
+  const pcEl = document.getElementById(`pc-${suffix}`);
+  const imcEl = document.getElementById(`imc-${suffix}`);
+  const resultEl = document.getElementById(`zscore-result-${suffix}`);
+  const idadeEl = document.getElementById(`idade-calc-${suffix}`);
+
+  const dnasc = dnascEl ? dnascEl.value : '';
+  const sexo = sexRadio ? sexRadio.value : null;
+  const ageMonths = calcAgeMonths(dnasc);
+
+  if (idadeEl && ageMonths !== null) {
+    idadeEl.value = formatIdade(ageMonths);
+    updateFieldFilled(idadeEl);
+  }
+
+  if (!resultEl) return;
+
+  const peso = pesoEl ? parseFloat(pesoEl.value) : NaN;
+  const estatura = estaturaEl ? parseFloat(estaturaEl.value) : NaN;
+  const pc = pcEl ? parseFloat(pcEl.value) : NaN;
+
+  let imc = NaN;
+  if (!isNaN(peso) && !isNaN(estatura) && estatura > 0) {
+    imc = peso / Math.pow(estatura / 100, 2);
+    if (imcEl) { imcEl.value = imc.toFixed(2); updateFieldFilled(imcEl); }
+  } else {
+    if (imcEl) { imcEl.value = ''; updateFieldFilled(imcEl); }
+  }
+
+  if (ageMonths === null || !sexo) {
+    resultEl.style.display = 'none';
+    return;
+  }
+
+  const isMale = sexo === 'M';
+  const wfaTable = ageMonths <= 60 ? (isMale ? WHO_WFA_BOYS : WHO_WFA_GIRLS) : null;
+  const lhfaTable = ageMonths <= 60
+    ? (isMale ? WHO_LHFA_BOYS : WHO_LHFA_GIRLS)
+    : (isMale ? WHO_HFA_BOYS_5_19 : WHO_HFA_GIRLS_5_19);
+  const bfaTable = ageMonths <= 60
+    ? (isMale ? WHO_BFA_BOYS : WHO_BFA_GIRLS)
+    : (ageMonths <= 228 ? (isMale ? WHO_BFA_BOYS_5_19 : WHO_BFA_GIRLS_5_19) : null);
+  const hcfaTable = ageMonths <= 60 ? (isMale ? WHO_HCFA_BOYS : WHO_HCFA_GIRLS) : null;
+
+  let zWFA = null, zLHFA = null, zBFA = null, zHCFA = null;
+
+  if (wfaTable && !isNaN(peso)) {
+    const lms = lmsInterpolate(wfaTable, ageMonths);
+    if (lms) zWFA = calcZscore(peso, lms.L, lms.M, lms.S);
+  }
+  if (lhfaTable && !isNaN(estatura)) {
+    const lms = lmsInterpolate(lhfaTable, ageMonths);
+    if (lms) zLHFA = calcZscore(estatura, lms.L, lms.M, lms.S);
+  }
+  if (bfaTable && !isNaN(imc)) {
+    const lms = lmsInterpolate(bfaTable, ageMonths);
+    if (lms) zBFA = calcZscore(imc, lms.L, lms.M, lms.S);
+  }
+  if (hcfaTable && !isNaN(pc)) {
+    const lms = lmsInterpolate(hcfaTable, ageMonths);
+    if (lms) zHCFA = calcZscore(pc, lms.L, lms.M, lms.S);
+  }
+
+  const fmtZ = (z) => z !== null ? (z >= 0 ? '+' + z.toFixed(2) : z.toFixed(2)) : '—';
+  const fmtImc = !isNaN(imc) ? imc.toFixed(2) + ' kg/m²' : '—';
+
+  const cards = [
+    { label: 'IMC calculado', value: fmtImc, cls: 'zc-na', classLabel: '' },
+    { label: 'Z P/I (peso/idade)', value: fmtZ(zWFA), ...(ageMonths > 120 ? { cls: 'zc-na', classLabel: 'Não aplicável > 10a' } : classifyWFA(zWFA)) },
+    { label: 'Z E/I (estatura/idade)', value: fmtZ(zLHFA), ...classifyLHFA(zLHFA) },
+    { label: 'Z IMC/I (IMC/idade)', value: fmtZ(zBFA), ...classifyBFA(zBFA) },
+    ...(ageMonths <= 60 ? [{ label: 'Z PC/I (PC/idade)', value: fmtZ(zHCFA), ...classifyHCFA(zHCFA) }] : [])
+  ];
+
+  const cardsHtml = cards.map(c => `
+    <div class="zscore-card">
+      <div class="zscore-label">${c.label}</div>
+      <div class="zscore-value">${c.value}</div>
+      ${c.classLabel ? `<div class="zscore-class ${c.cls}">${c.classLabel}</div>` : ''}
+    </div>
+  `).join('');
+
+  resultEl.innerHTML = `
+    <div class="zscore-box-title">📊 Z-scores (OMS 2006/2007) · ${formatIdade(ageMonths)} · ${isMale ? 'Masculino' : 'Feminino'}</div>
+    <div class="zscore-grid">${cardsHtml}</div>
+  `;
+  resultEl.style.display = '';
+}
+
+['dnasc-first','peso-first','estatura-first','pc-first',
+ 'dnasc-follow','peso-follow','estatura-follow','pc-follow'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => updateZscores(id.includes('first') ? 'first' : 'follow'));
+});
+document.querySelectorAll('input[name="sexo-f"], input[name="sexo-s"]').forEach(el => {
+  el.addEventListener('change', () => {
+    updateZscores(el.name === 'sexo-f' ? 'first' : 'follow');
+  });
+});
+
+updateZscores('first');
+updateZscores('follow');
 </script>
 </body>
 </html>
