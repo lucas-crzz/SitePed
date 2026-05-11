@@ -1945,10 +1945,11 @@ function calcAgeMonths(dnasc) {
   const parts = dnasc.split('-').map(Number);
   if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
   const [year, month, day] = parts;
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (year <= 0 || month < 1 || month > 12 || day < 1 || day > 31) return null;
   const birth = new Date(year, month - 1, day);
   if (birth.getFullYear() !== year || birth.getMonth() !== (month - 1) || birth.getDate() !== day) return null;
   const now = new Date();
-  if (isNaN(birth.getTime())) return null;
   const totalMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
   const dayOffset = now.getDate() >= birth.getDate() ? 0 : -1;
   return Math.max(0, totalMonths + dayOffset);
