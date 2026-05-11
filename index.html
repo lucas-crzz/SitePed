@@ -2024,7 +2024,7 @@ function calcAgeMonthsExact(dnasc) {
   if (birth.getFullYear() !== year || birth.getMonth() !== (month - 1) || birth.getDate() !== day) return null;
   const now = new Date();
   const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
-  // 365 + 1/4 - 1/100 + 1/400 = média de dias/ano no calendário gregoriano.
+  // Média anual do calendário gregoriano (considerando anos bissextos).
   const MEAN_DAYS_PER_GREGORIAN_YEAR = 365.2425;
   const elapsedDays = (now - birth) / MILLISECONDS_PER_DAY;
   const meanDaysPerMonth = MEAN_DAYS_PER_GREGORIAN_YEAR / 12;
@@ -2134,7 +2134,7 @@ function updateZscores(suffix) {
   const fmtImc = !isNaN(imc) ? imc.toFixed(2) + ' kg/m²' : '—';
 
   const bfaLms = bfaTable ? lmsInterpolate(bfaTable, ageMonths) : null;
-  const fmtLms = bfaLms ? `L=${bfaLms.L.toFixed(4)} · M=${bfaLms.M.toFixed(4)} · S=${bfaLms.S.toFixed(5)}` : '—';
+  const fmtLms = bfaLms ? `L=${bfaLms.L.toFixed(5)} · M=${bfaLms.M.toFixed(5)} · S=${bfaLms.S.toFixed(5)}` : '—';
 
   const cards = [
     { label: 'IMC calculado', value: fmtImc, cls: 'zc-na', classLabel: '' },
