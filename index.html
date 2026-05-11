@@ -1942,7 +1942,11 @@ function updateRNClassif() {
 
 function calcAgeMonths(dnasc) {
   if (!dnasc) return null;
-  const birth = new Date(dnasc);
+  const parts = dnasc.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(n => !Number.isFinite(n))) return null;
+  const [year, month, day] = parts;
+  const birth = new Date(year, month - 1, day);
+  if (birth.getFullYear() !== year || birth.getMonth() !== (month - 1) || birth.getDate() !== day) return null;
   const now = new Date();
   if (isNaN(birth.getTime())) return null;
   const totalMonths = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
