@@ -1644,6 +1644,18 @@ const WHO_WFA_GIRLS = [
   [60,-0.3530,21.0774,0.13198]
 ];
 
+// WHO 2007 Weight-for-Age Boys (61–120 months)
+const WHO_WFA_BOYS_5_10 = [
+  [61,-0.3521,18.66,0.12177],[72,-0.3521,20.31,0.13034],[84,-0.3521,22.23,0.13735],
+  [96,-0.3521,24.44,0.14448],[108,-0.3521,27.15,0.15149],[120,-0.3521,30.46,0.15961]
+];
+
+// WHO 2007 Weight-for-Age Girls (61–120 months)
+const WHO_WFA_GIRLS_5_10 = [
+  [61,-0.3521,18.20,0.13048],[72,-0.3521,19.95,0.13685],[84,-0.3521,21.84,0.14541],
+  [96,-0.3521,24.14,0.15441],[108,-0.3521,26.98,0.16390],[120,-0.3521,30.46,0.17453]
+];
+
 // WHO 2006 Length/Height-for-Age Boys (0–60 months)
 const WHO_LHFA_BOYS = [
   [0,1,49.8842,0.03795],[1,1,54.7244,0.03557],[2,1,58.4249,0.03424],[3,1,61.4292,0.03328],
@@ -1986,14 +1998,27 @@ function updateZscores(suffix) {
   }
 
   const isMale = sexo === 'M';
-  const wfaTable = ageMonths <= 60 ? (isMale ? WHO_WFA_BOYS : WHO_WFA_GIRLS) : null;
-  const lhfaTable = ageMonths <= 60
-    ? (isMale ? WHO_LHFA_BOYS : WHO_LHFA_GIRLS)
-    : (isMale ? WHO_HFA_BOYS_5_19 : WHO_HFA_GIRLS_5_19);
-  const bfaTable = ageMonths <= 60
-    ? (isMale ? WHO_BFA_BOYS : WHO_BFA_GIRLS)
-    : (ageMonths <= 228 ? (isMale ? WHO_BFA_BOYS_5_19 : WHO_BFA_GIRLS_5_19) : null);
-  const hcfaTable = ageMonths <= 60 ? (isMale ? WHO_HCFA_BOYS : WHO_HCFA_GIRLS) : null;
+  const wfaApplicable = ageMonths >= 0 && ageMonths <= 120;  // 0–10 anos
+  const lhfaApplicable = ageMonths >= 0 && ageMonths <= 228; // 0–19 anos
+  const bfaApplicable = ageMonths >= 0 && ageMonths <= 228;  // 0–19 anos
+  const hcfaApplicable = ageMonths >= 0 && ageMonths <= 60;  // 0–5 anos
+
+  const wfaTable = !wfaApplicable ? null : (
+    ageMonths <= 60
+      ? (isMale ? WHO_WFA_BOYS : WHO_WFA_GIRLS)
+      : (isMale ? WHO_WFA_BOYS_5_10 : WHO_WFA_GIRLS_5_10)
+  );
+  const lhfaTable = !lhfaApplicable ? null : (
+    ageMonths <= 60
+      ? (isMale ? WHO_LHFA_BOYS : WHO_LHFA_GIRLS)
+      : (isMale ? WHO_HFA_BOYS_5_19 : WHO_HFA_GIRLS_5_19)
+  );
+  const bfaTable = !bfaApplicable ? null : (
+    ageMonths <= 60
+      ? (isMale ? WHO_BFA_BOYS : WHO_BFA_GIRLS)
+      : (isMale ? WHO_BFA_BOYS_5_19 : WHO_BFA_GIRLS_5_19)
+  );
+  const hcfaTable = hcfaApplicable ? (isMale ? WHO_HCFA_BOYS : WHO_HCFA_GIRLS) : null;
 
   let zWFA = null, zLHFA = null, zBFA = null, zHCFA = null;
 
@@ -2014,15 +2039,34 @@ function updateZscores(suffix) {
     if (lms) zHCFA = calcZscore(pc, lms.L, lms.M, lms.S);
   }
 
-  const fmtZ = (z) => z !== null ? (z >= 0 ? '+' + z.toFixed(2) : z.toFixed(2)) : '—';
+  const fmtZ = (z, applicable = true) => {
+    if (!applicable) return 'Não aplicável';
+    return z !== null ? (z >= 0 ? '+' + z.toFixed(2) : z.toFixed(2)) : '—';
+  };
   const fmtImc = !isNaN(imc) ? imc.toFixed(2) + ' kg/m²' : '—';
 
   const cards = [
     { label: 'IMC calculado', value: fmtImc, cls: 'zc-na', classLabel: '' },
-    { label: 'Z P/I (peso/idade)', value: fmtZ(zWFA), ...(ageMonths > 120 ? { cls: 'zc-na', classLabel: 'Não aplicável > 10a' } : classifyWFA(zWFA)) },
-    { label: 'Z E/I (estatura/idade)', value: fmtZ(zLHFA), ...classifyLHFA(zLHFA) },
-    { label: 'Z IMC/I (IMC/idade)', value: fmtZ(zBFA), ...classifyBFA(zBFA, ageMonths) },
-    ...(ageMonths <= 60 ? [{ label: 'Z PC/I (PC/idade)', value: fmtZ(zHCFA), ...classifyHCFA(zHCFA) }] : [])
+    {
+      label: 'Z P/I (peso/idade)',
+      value: fmtZ(zWFA, wfaApplicable),
+      ...(wfaApplicable ? classifyWFA(zWFA) : { cls: 'zc-na', classLabel: 'Não aplicável' })
+    },
+    {
+      label: 'Z E/I (estatura/idade)',
+      value: fmtZ(zLHFA, lhfaApplicable),
+      ...(lhfaApplicable ? classifyLHFA(zLHFA) : { cls: 'zc-na', classLabel: 'Não aplicável' })
+    },
+    {
+      label: 'Z IMC/I (IMC/idade)',
+      value: fmtZ(zBFA, bfaApplicable),
+      ...(bfaApplicable ? classifyBFA(zBFA, ageMonths) : { cls: 'zc-na', classLabel: 'Não aplicável' })
+    },
+    {
+      label: 'Z PC/I (PC/idade)',
+      value: fmtZ(zHCFA, hcfaApplicable),
+      ...(hcfaApplicable ? classifyHCFA(zHCFA) : { cls: 'zc-na', classLabel: 'Não aplicável' })
+    }
   ];
 
   const cardsHtml = cards.map(c => `
