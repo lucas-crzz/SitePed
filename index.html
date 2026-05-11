@@ -2131,19 +2131,7 @@ function updateZscores(suffix) {
     if (!applicable) return 'Não aplicável';
     return z !== null ? (z >= 0 ? '+' + z.toFixed(2) : z.toFixed(2)) : '—';
   };
-  const fmtImc = !isNaN(imc) ? imc.toFixed(2) + ' kg/m²' : '—';
-
-  const bfaLms = bfaTable ? lmsInterpolate(bfaTable, ageMonths) : null;
-  const fmtLms = bfaLms ? `L=${bfaLms.L.toFixed(5)} · M=${bfaLms.M.toFixed(5)} · S=${bfaLms.S.toFixed(5)}` : '—';
-
   const cards = [
-    { label: 'IMC calculado', value: fmtImc, cls: 'zc-na', classLabel: '' },
-    {
-      label: 'Dados LMS IMC/I usados',
-      value: fmtLms,
-      cls: bfaLms ? 'zc-ok' : 'zc-na',
-      classLabel: bfaLms ? 'Parâmetros de referência OMS usados no cálculo' : ''
-    },
     {
       label: 'Z P/I (peso/idade)',
       value: fmtZ(zWFA, wfaApplicable),
