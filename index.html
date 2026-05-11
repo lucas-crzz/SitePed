@@ -2024,7 +2024,7 @@ function calcAgeMonthsExact(dnasc) {
   if (birth.getFullYear() !== year || birth.getMonth() !== (month - 1) || birth.getDate() !== day) return null;
   const now = new Date();
   const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
-  // Média anual do calendário gregoriano (considerando anos bissextos).
+  // Média anual do calendário Gregoriano (considerando anos bissextos).
   const MEAN_DAYS_PER_GREGORIAN_YEAR = 365.2425;
   const elapsedDays = (now - birth) / MILLISECONDS_PER_DAY;
   const meanDaysPerMonth = MEAN_DAYS_PER_GREGORIAN_YEAR / 12;
@@ -2141,7 +2141,7 @@ function updateZscores(suffix) {
     {
       label: 'Dados LMS IMC/I usados',
       value: fmtLms,
-      cls: bfaLms ? 'zc-obs' : 'zc-na',
+      cls: bfaLms ? 'zc-ok' : 'zc-na',
       classLabel: bfaLms ? 'Parâmetros de referência OMS usados no cálculo' : ''
     },
     {
