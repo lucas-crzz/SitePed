@@ -2023,9 +2023,10 @@ function calcAgeMonthsExact(dnasc) {
   const birth = new Date(year, month - 1, day);
   if (birth.getFullYear() !== year || birth.getMonth() !== (month - 1) || birth.getDate() !== day) return null;
   const now = new Date();
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const elapsedDays = (now - birth) / msPerDay;
-  const meanDaysPerMonth = 365.2425 / 12;
+  const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+  const DAYS_PER_GREGORIAN_YEAR = 365.2425;
+  const elapsedDays = (now - birth) / MILLISECONDS_PER_DAY;
+  const meanDaysPerMonth = DAYS_PER_GREGORIAN_YEAR / 12;
   return Math.max(0, elapsedDays / meanDaysPerMonth);
 }
 
