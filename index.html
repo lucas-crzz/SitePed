@@ -121,11 +121,11 @@
   .section { background: #fff; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.3); margin-bottom: 18px; overflow: hidden; box-shadow: var(--shadow); animation: fadeIn .3s ease; }
   .section-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; background: linear-gradient(90deg, rgba(248,250,252,0.9) 0%, rgba(248,250,252,0) 60%); }
   .section-header:hover { background: rgba(248, 250, 252, 0.9); }
-  .section-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(26,44,61,0.08); color: var(--navy); }
+  .section-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(26,44,61,0.08), 0 6px 14px rgba(18, 24, 38, 0.08); color: var(--navy); }
   .section-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-  .icon-first { background: var(--teal-light); color: var(--teal); }
-  .icon-follow { background: var(--follow-light); color: var(--follow); }
-  .icon-amber { background: var(--amber-light); color: var(--amber); }
+  .icon-first { background: linear-gradient(135deg, rgba(228, 241, 237, 0.9) 0%, rgba(228, 241, 237, 0.6) 100%); color: var(--teal); }
+  .icon-follow { background: linear-gradient(135deg, rgba(242, 232, 221, 0.9) 0%, rgba(242, 232, 221, 0.6) 100%); color: var(--follow); }
+  .icon-amber { background: linear-gradient(135deg, rgba(247, 237, 229, 0.9) 0%, rgba(247, 237, 229, 0.6) 100%); color: var(--amber); }
   .section-title { font-size: 16px; font-weight: 700; color: var(--navy); letter-spacing: 0.3px; flex: 1; }
   .section-toggle { font-size: 11px; color: var(--muted); transition: transform .2s; }
   .section.open .section-toggle { transform: rotate(90deg); }
@@ -1933,6 +1933,12 @@
     return formatSectionText(planEntries);
   }
 
+  function formatTopicBlock(title, lines) {
+    if (!lines || !lines.length) return '';
+    const body = lines.map((line) => `- ${line}`).join('\n');
+    return `**${title}**\n${body}`;
+  }
+
   function buildPlainText() {
     const panel = getActivePanel();
     if (!panel || panel.id === 'panel-reference') return '';
@@ -1949,21 +1955,91 @@
     const sexo = sexoField?.closest('label')?.textContent.trim() || 'Não informado';
     const dataNasc = formatDateBR(dataNascField?.value || '');
 
-    const anamnese = coletarAnamnese(panel);
-    const objetivo = coletarObjetivo(panel);
-    const avaliacao = coletarAvaliacao(panel);
-    const plano = coletarPlano(panel);
-
     const header = `PRONTUARIO PEDIATRICO | ${tipoConsulta}`;
     const meta = `Paciente: ${nomeCrianca} | Sexo: ${sexo} | Nascimento: ${dataNasc} | Data: ${dataConsulta} | Prontuario: ${prontuario}`;
     const parts = [header, meta];
 
-    if (anamnese) parts.push(`ANAMNESE: ${anamnese}`);
-    if (objetivo) parts.push(`EXAME FISICO E OBJETIVO: ${objetivo}`);
-    if (avaliacao) parts.push(`AVALIACAO E IMPRESSAO CLINICA: ${avaliacao}`);
-    if (plano) parts.push(`PLANO TERAPEUTICO: ${plano}`);
+    const blocks = [];
 
-    return parts.join('\n');
+    const queixaField = panel.querySelector('textarea[id^="queixa-principal"]');
+    const queixaText = queixaField?.value.trim();
+    if (queixaText) blocks.push(formatTopicBlock('Queixa Principal', [queixaText]));
+
+    const hqaSection = panel.querySelector('#s-hqa-first, #s-hqa-follow');
+    if (hqaSection) {
+      const lines = collectSectionEntries(hqaSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Historia da Queixa Atual', lines));
+    }
+
+    const isSection = panel.querySelector('#s-is-first, #s-is-follow');
+    if (isSection) {
+      const lines = collectSectionEntries(isSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Interrogatorio de Sistemas', lines));
+    }
+
+    const habSection = panel.querySelector('#s-hab-first, #s-hab-follow');
+    if (habSection) {
+      const lines = collectSectionEntries(habSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Habitos de Vida', lines));
+    }
+
+    const alimSection = panel.querySelector('#s-alim-first, #s-alim-follow');
+    if (alimSection) {
+      const lines = collectSectionEntries(alimSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Alimentacao', lines));
+    }
+
+    const dnpmSection = panel.querySelector('#s-dnpm-first, #s-dnpm-follow');
+    if (dnpmSection) {
+      const lines = collectSectionEntries(dnpmSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Desenvolvimento Neuropsicomotor', lines));
+    }
+
+    const gestSection = panel.querySelector('#s-gest-first');
+    if (gestSection) {
+      const lines = collectSectionEntries(gestSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Gestacionais e Neonatais', lines));
+    }
+
+    const apSection = panel.querySelector('#s-ap-first');
+    if (apSection) {
+      const lines = collectSectionEntries(apSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Pessoais', lines));
+    }
+
+    const afSection = panel.querySelector('#s-af-first');
+    if (afSection) {
+      const lines = collectSectionEntries(afSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Familiares', lines));
+    }
+
+    const psiSection = panel.querySelector('#s-psi-first, #s-psi-follow');
+    if (psiSection) {
+      const lines = collectSectionEntries(psiSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) blocks.push(formatTopicBlock('Aspectos Psicossociais', lines));
+    }
+
+    if (blocks.length) parts.push('**ANAMNESE**', blocks.join('\n\n'));
+
+    const objSection = panel.querySelector('#s-obj-first, #s-obj-follow');
+    if (objSection) {
+      const lines = collectSectionEntries(objSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) parts.push('**EXAME FISICO E OBJETIVO**', formatTopicBlock('Exame Fisico', lines));
+    }
+
+    const assSection = panel.querySelector('#s-ass-first, #s-ass-follow');
+    if (assSection) {
+      const lines = collectSectionEntries(assSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) parts.push('**AVALIACAO E IMPRESSAO CLINICA**', formatTopicBlock('Avaliacao', lines));
+    }
+
+    const planSection = panel.querySelector('#s-plan-first, #s-plan-follow');
+    if (planSection) {
+      const lines = collectSectionEntries(planSection).map((e) => `${e.label}: ${e.value}`);
+      if (lines.length) parts.push('**PLANO TERAPEUTICO**', formatTopicBlock('Plano', lines));
+    }
+
+    return parts.filter(Boolean).join('\n\n');
   }
 
   async function copiarProntuario() {
