@@ -252,7 +252,7 @@
     * { margin: 0; padding: 0; }
     html, body { margin: 0; padding: 0; background: #fff; color: #000; font-family: 'DM Sans', Arial, sans-serif; }
     .content { display: none !important; }
-    body.print-ready .print-sheet { display: block !important; margin: 0; border: none; border-radius: 0; max-width: 100%; padding: 35px 40px; background: #fff; }
+    body.print-ready .print-sheet { display: block !important; margin: 0; border: none; border-radius: 0; max-width: 100%; padding: 0; background: #fff; page-break-before: avoid; break-before: avoid-page; }
     body:not(.print-ready) .print-sheet { display: none !important; }
     .print-header { border-bottom: 2px solid #000; margin-bottom: 16px; padding-bottom: 10px; }
     .print-header h1 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0 0 6px 0; color: #000; }
@@ -1933,13 +1933,19 @@
     return formatSectionText(planEntries);
   }
 
-  function formatTopicBlock(title, lines) {
+  function formatTopicBlockPlain(title, lines) {
     if (!lines || !lines.length) return '';
     const body = lines.map((line) => `- ${line}`).join('\n');
-    return `**${title}**\n${body}`;
+    return `${title.toUpperCase()}\n${body}`;
   }
 
-  function buildPlainText() {
+  function formatTopicBlockHtml(title, lines) {
+    if (!lines || !lines.length) return '';
+    const body = lines.map((line) => `&#8226; ${escapeHtml(line)}`).join('<br>');
+    return `<div><strong>${escapeHtml(title)}</strong><br>${body}</div>`;
+  }
+
+  function buildCopyPayload() {
     const panel = getActivePanel();
     if (!panel || panel.id === 'panel-reference') return '';
     const tipoConsulta = panel.id === 'panel-first' ? 'Primeira Consulta' : 'Consulta Subsequente';
@@ -1957,89 +1963,115 @@
 
     const header = `PRONTUARIO PEDIATRICO | ${tipoConsulta}`;
     const meta = `Paciente: ${nomeCrianca} | Sexo: ${sexo} | Nascimento: ${dataNasc} | Data: ${dataConsulta} | Prontuario: ${prontuario}`;
-    const parts = [header, meta];
+    const blocksPlain = [];
+    const blocksHtml = [];
 
-    const blocks = [];
+    const addBlock = (title, lines) => {
+      const plain = formatTopicBlockPlain(title, lines);
+      const html = formatTopicBlockHtml(title, lines);
+      if (plain) blocksPlain.push(plain);
+      if (html) blocksHtml.push(html);
+    };
 
     const queixaField = panel.querySelector('textarea[id^="queixa-principal"]');
     const queixaText = queixaField?.value.trim();
-    if (queixaText) blocks.push(formatTopicBlock('Queixa Principal', [queixaText]));
+    if (queixaText) addBlock('Queixa Principal', [queixaText]);
 
     const hqaSection = panel.querySelector('#s-hqa-first, #s-hqa-follow');
     if (hqaSection) {
       const lines = collectSectionEntries(hqaSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Historia da Queixa Atual', lines));
+      if (lines.length) addBlock('Historia da Queixa Atual', lines);
     }
 
     const isSection = panel.querySelector('#s-is-first, #s-is-follow');
     if (isSection) {
       const lines = collectSectionEntries(isSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Interrogatorio de Sistemas', lines));
+      if (lines.length) addBlock('Interrogatorio de Sistemas', lines);
     }
 
     const habSection = panel.querySelector('#s-hab-first, #s-hab-follow');
     if (habSection) {
       const lines = collectSectionEntries(habSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Habitos de Vida', lines));
+      if (lines.length) addBlock('Habitos de Vida', lines);
     }
 
     const alimSection = panel.querySelector('#s-alim-first, #s-alim-follow');
     if (alimSection) {
       const lines = collectSectionEntries(alimSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Alimentacao', lines));
+      if (lines.length) addBlock('Alimentacao', lines);
     }
 
     const dnpmSection = panel.querySelector('#s-dnpm-first, #s-dnpm-follow');
     if (dnpmSection) {
       const lines = collectSectionEntries(dnpmSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Desenvolvimento Neuropsicomotor', lines));
+      if (lines.length) addBlock('Desenvolvimento Neuropsicomotor', lines);
     }
 
     const gestSection = panel.querySelector('#s-gest-first');
     if (gestSection) {
       const lines = collectSectionEntries(gestSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Gestacionais e Neonatais', lines));
+      if (lines.length) addBlock('Antecedentes Gestacionais e Neonatais', lines);
     }
 
     const apSection = panel.querySelector('#s-ap-first');
     if (apSection) {
       const lines = collectSectionEntries(apSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Pessoais', lines));
+      if (lines.length) addBlock('Antecedentes Pessoais', lines);
     }
 
     const afSection = panel.querySelector('#s-af-first');
     if (afSection) {
       const lines = collectSectionEntries(afSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Antecedentes Familiares', lines));
+      if (lines.length) addBlock('Antecedentes Familiares', lines);
     }
 
     const psiSection = panel.querySelector('#s-psi-first, #s-psi-follow');
     if (psiSection) {
       const lines = collectSectionEntries(psiSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) blocks.push(formatTopicBlock('Aspectos Psicossociais', lines));
+      if (lines.length) addBlock('Aspectos Psicossociais', lines);
     }
 
-    if (blocks.length) parts.push('**ANAMNESE**', blocks.join('\n\n'));
+    const partsPlain = [header, meta, blocksPlain.join('\n\n')].filter(Boolean);
+    const partsHtml = [
+      `<div><strong>${escapeHtml(header)}</strong></div>`,
+      `<div>${escapeHtml(meta)}</div>`,
+      blocksHtml.join('<br><br>')
+    ].filter(Boolean);
 
     const objSection = panel.querySelector('#s-obj-first, #s-obj-follow');
     if (objSection) {
       const lines = collectSectionEntries(objSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) parts.push('**EXAME FISICO E OBJETIVO**', formatTopicBlock('Exame Fisico', lines));
+      if (lines.length) {
+        partsPlain.push('', formatTopicBlockPlain('Exame Fisico e Objetivo', lines));
+        partsHtml.push('<br>', formatTopicBlockHtml('Exame Fisico e Objetivo', lines));
+      }
     }
 
     const assSection = panel.querySelector('#s-ass-first, #s-ass-follow');
     if (assSection) {
       const lines = collectSectionEntries(assSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) parts.push('**AVALIACAO E IMPRESSAO CLINICA**', formatTopicBlock('Avaliacao', lines));
+      if (lines.length) {
+        partsPlain.push('', formatTopicBlockPlain('Avaliacao e Impressao Clinica', lines));
+        partsHtml.push('<br>', formatTopicBlockHtml('Avaliacao e Impressao Clinica', lines));
+      }
     }
 
     const planSection = panel.querySelector('#s-plan-first, #s-plan-follow');
     if (planSection) {
       const lines = collectSectionEntries(planSection).map((e) => `${e.label}: ${e.value}`);
-      if (lines.length) parts.push('**PLANO TERAPEUTICO**', formatTopicBlock('Plano', lines));
+      if (lines.length) {
+        partsPlain.push('', formatTopicBlockPlain('Plano Terapeutico', lines));
+        partsHtml.push('<br>', formatTopicBlockHtml('Plano Terapeutico', lines));
+      }
     }
 
-    return parts.filter(Boolean).join('\n\n');
+    return {
+      text: partsPlain
+        .join('\n\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim(),
+      html: partsHtml.join('')
+    };
   }
 
   async function copiarProntuario() {
@@ -2048,17 +2080,26 @@
       return;
     }
     validateRequiredFields(true);
-    const text = buildPlainText();
-    if (!text) {
+    const payload = buildCopyPayload();
+    if (!payload || !payload.text) {
       updateSaveStatus('Preencha campos antes de copiar.', true);
       return;
     }
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/plain': new Blob([payload.text], { type: 'text/plain' }),
+            'text/html': new Blob([payload.html], { type: 'text/html' })
+          })
+        ]);
+      } else {
+        await navigator.clipboard.writeText(payload.text);
+      }
       updateSaveStatus('Texto copiado para a area de transferencia.');
     } catch (error) {
       const fallback = document.createElement('textarea');
-      fallback.value = text;
+      fallback.value = payload.text;
       document.body.appendChild(fallback);
       fallback.select();
       document.execCommand('copy');
