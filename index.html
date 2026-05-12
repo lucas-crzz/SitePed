@@ -139,6 +139,23 @@
   .reference-card h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #334155; margin-bottom: 8px; }
   .reference-card img { width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0; }
 
+  /* PRONTUARIO REALISTA */
+  .print-sheet { padding: 40px 50px !important; }
+  .print-header { border-bottom: 3px solid #111827; margin-bottom: 20px; padding-bottom: 15px; }
+  .print-header h1 { font-family: 'Playfair Display', serif; font-size: 20px; color: #111827; margin-bottom: 3px; }
+  .print-header-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; font-size: 11px; margin-top: 12px; }
+  .print-header-info div { line-height: 1.6; }
+  .print-section { margin-bottom: 16px; }
+  .print-section h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #111827; border-bottom: 2px solid #d1d5db; padding-bottom: 6px; margin-bottom: 10px; }
+  .print-content { font-size: 11.5px; line-height: 1.7; color: #1f2937; }
+  .print-content p { margin-bottom: 8px; text-align: justify; }
+  .print-content strong { color: #111827; font-weight: 700; }
+  .print-topic { margin-bottom: 10px; }
+  .print-topic-title { font-weight: 700; color: #111827; display: inline; }
+  .print-topic-content { display: inline; }
+  .print-empty { font-style: italic; color: #6b7280; }
+  .print-page-break { page-break-inside: avoid; }
+
   /* Z-SCORE CALCULATOR */
   .zscore-box { border-radius: 10px; border: 1px solid var(--line); overflow: hidden; margin-top: 6px; }
   .zscore-box-title { padding: 10px 14px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: var(--teal-light); color: var(--teal); }
@@ -156,14 +173,22 @@
 
   /* PRINT STYLES */
   @media print {
-    .tabs, .toolbar, .header, .intro-badge { display: none !important; }
-    body { background: #fff; color: #111827; }
-    .content { padding: 0; max-width: 100%; }
-    body.print-ready .content { display: none !important; }
-    body.print-ready .print-sheet { display: block !important; margin: 0; border: none; border-radius: 0; max-width: 100%; padding: 0; }
+    .tabs, .toolbar, .header, .intro-badge, .reference-frame, .reference-grid { display: none !important; }
+    * { margin: 0; padding: 0; }
+    html, body { margin: 0; padding: 0; background: #fff; color: #000; font-family: 'DM Sans', Arial, sans-serif; }
+    .content { display: none !important; }
+    body.print-ready .print-sheet { display: block !important; margin: 0; border: none; border-radius: 0; max-width: 100%; padding: 35px 40px; background: #fff; }
     body:not(.print-ready) .print-sheet { display: none !important; }
-    .soap-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .soap-block { break-inside: avoid; page-break-inside: avoid; }
+    .print-header { border-bottom: 2px solid #000; margin-bottom: 16px; padding-bottom: 10px; }
+    .print-header h1 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 0 0 6px 0; color: #000; }
+    .print-header-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; font-size: 10px; line-height: 1.5; }
+    .print-section { page-break-inside: avoid; margin-bottom: 12px; }
+    .print-section h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #000; border-bottom: 1px solid #666; padding-bottom: 4px; margin-bottom: 8px; }
+    .print-content { font-size: 10.5px; line-height: 1.65; color: #000; }
+    .print-topic { margin-bottom: 6px; }
+    .print-topic-title { font-weight: 700; color: #000; }
+    .print-topic-content { color: #1a1a1a; }
+    @page { margin: 10mm; size: A4; }
   }
 </style>
 </head>
@@ -1484,64 +1509,210 @@
       || document.querySelector('#panel-first');
     if (!panel) return;
 
-    const tipoConsulta = panel.id === 'panel-first' ? 'Primeira consulta' : 'Consulta subsequente';
-    const nomeField = panel.querySelector('input[id^="nome-crianca"]');
-    const queixaField = panel.querySelector('textarea[id^="queixa-principal"]');
-    const nomeCrianca = nomeField && nomeField.value.trim() ? nomeField.value.trim() : 'Não informado';
-
-    const soap = { S: [], O: [], A: [], P: [] };
-    panel.querySelectorAll('.section').forEach((section) => {
-      const titleEl = section.querySelector('.section-title');
-      if (!titleEl) return;
-
-      const title = titleEl.textContent.trim();
-      const entries = collectSectionEntries(section);
-      if (!entries.length) return;
-
-      const axis = classifySoapAxis(section, title);
-      soap[axis].push(renderSectionHtml(title, entries));
-    });
-
-    const missing = [];
-    if (!nomeField || !nomeField.value.trim()) missing.push('Nome da criança');
-    if (!queixaField || !queixaField.value.trim()) missing.push('Queixa principal');
-    if (!soap.A.length) missing.push('Avaliação (A)');
-    if (!soap.P.length) missing.push('Plano (P)');
-
-    const axisTitle = {
-      S: 'Subjetivo (S)',
-      O: 'Objetivo (O)',
-      A: 'Avaliação (A)',
-      P: 'Plano (P)'
-    };
-
-    const renderAxis = (axis) => {
-      if (!soap[axis].length) return `<p class="soap-empty">Sem registros preenchidos.</p>`;
-      return soap[axis].join('');
-    };
+    const tipoConsulta = panel.id === 'panel-first' ? 'Primeira Consulta' : 'Consulta Subsequente';
+    const nomeCriancaField = panel.querySelector('input[id^="nome-crianca"]');
+    const dataConsultaField = document.getElementById('data-consulta');
+    const prontuarioField = panel.querySelector('input[id^="pront-num"]');
+    const sexoField = panel.querySelector('input[name^="sexo-"]:checked');
+    const dataNascField = panel.querySelector('input[id^="dnasc-"]');
+    
+    const nomeCrianca = nomeCriancaField?.value.trim() || 'Não informado';
+    const dataConsulta = formatDateBR(dataConsultaField?.value || '');
+    const prontuario = prontuarioField?.value.trim() || 'Não informado';
+    const sexo = sexoField?.closest('label')?.textContent.trim() || 'Não informado';
+    const dataNasc = formatDateBR(dataNascField?.value || '');
+    
+    // Coletar dados de anamnese
+    const anamnese = coletarAnamnese(panel);
+    
+    // Coletar dados objetivos (exame físico)
+    const objetivo = coletarObjetivo(panel);
+    
+    // Coletar avaliação
+    const avaliacao = coletarAvaliacao(panel);
+    
+    // Coletar plano
+    const plano = coletarPlano(panel);
 
     const sheet = document.getElementById('soap-print-sheet');
     sheet.innerHTML = `
-      <div class="print-head">
-        <h2>Prontuário Pediátrico em SOAP</h2>
-        <p>Documento de registro clínico para impressão</p>
-        <div class="meta-print">
-          <div><strong>Tipo:</strong> ${escapeHtml(tipoConsulta)}</div>
-          <div><strong>Data:</strong> ${escapeHtml(formatDateBR(document.getElementById('data-consulta').value))}</div>
-          <div><strong>Criança:</strong> ${escapeHtml(nomeCrianca)}</div>
-          <div><strong>Prontuário nº:</strong> ${escapeHtml(document.getElementById('pront-num').value.trim() || 'Não informado')}</div>
-          <div><strong>Nº consulta:</strong> ${escapeHtml(document.getElementById('num-consulta').value.trim() || 'Não informado')}</div>
-          <div><strong>Acadêmico:</strong> ${escapeHtml(document.getElementById('academico').value.trim() || 'Não informado')}</div>
+      <div class="print-header">
+        <h1>PRONTUÁRIO PEDIÁTRICO</h1>
+        <div class="print-header-info">
+          <div>
+            <strong>Paciente:</strong> ${escapeHtml(nomeCrianca)}<br>
+            <strong>Sexo:</strong> ${escapeHtml(sexo)}<br>
+            <strong>Data Nascimento:</strong> ${escapeHtml(dataNasc)}
+          </div>
+          <div>
+            <strong>Prontuário nº:</strong> ${escapeHtml(prontuario)}<br>
+            <strong>Data Consulta:</strong> ${escapeHtml(dataConsulta)}<br>
+            <strong>Tipo:</strong> ${escapeHtml(tipoConsulta)}
+          </div>
+          <div>
+            <strong>Profissional:</strong> ${escapeHtml(panel.querySelector('input[id^="academico-"], input[id^="prof-"]')?.value.trim() || 'Não informado')}<br>
+            <strong>Nº Consulta:</strong> ${escapeHtml(panel.querySelector('input[id^="num-consulta"]')?.value.trim() || '')}<br>
+            <strong>CRM/COREN:</strong> ${escapeHtml(panel.querySelector('input[id^="crm-"], input[id^="coren"]')?.value.trim() || '')}
+          </div>
         </div>
-        ${missing.length ? `<div class="print-alert"><strong>Atenção:</strong> campos críticos pendentes: ${escapeHtml(missing.join(', '))}.</div>` : ''}
       </div>
-      <div class="soap-grid">
-        <section class="soap-block"><h3>${axisTitle.S}</h3>${renderAxis('S')}</section>
-        <section class="soap-block"><h3>${axisTitle.O}</h3>${renderAxis('O')}</section>
-        <section class="soap-block"><h3>${axisTitle.A}</h3>${renderAxis('A')}</section>
-        <section class="soap-block"><h3>${axisTitle.P}</h3>${renderAxis('P')}</section>
-      </div>
+
+      ${anamnese ? `<div class="print-section"><h2>ANAMNESE</h2><div class="print-content">${anamnese}</div></div>` : ''}
+      ${objetivo ? `<div class="print-section"><h2>EXAME FÍSICO E OBJETIVO</h2><div class="print-content">${objetivo}</div></div>` : ''}
+      ${avaliacao ? `<div class="print-section"><h2>AVALIAÇÃO E IMPRESSÃO CLÍNICA</h2><div class="print-content">${avaliacao}</div></div>` : ''}
+      ${plano ? `<div class="print-section"><h2>PLANO TERAPÊUTICO</h2><div class="print-content">${plano}</div></div>` : ''}
     `;
+  }
+
+  function coletarAnamnese(panel) {
+    const anamneseFields = {};
+    
+    // Queixa Principal
+    const queixaField = panel.querySelector('textarea[id^="queixa-principal"]');
+    if (queixaField?.value.trim()) {
+      anamneseFields['Queixa Principal'] = queixaField.value.trim();
+    }
+    
+    // HQA
+    const hqaSection = panel.querySelector('#s-hqa-first, #s-hqa-follow');
+    if (hqaSection) {
+      const hqaEntries = collectSectionEntries(hqaSection);
+      if (hqaEntries.length) {
+        anamneseFields['História da Queixa Atual'] = hqaEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // Interrogatório de Sistemas
+    const isSection = panel.querySelector('#s-is-first, #s-is-follow');
+    if (isSection) {
+      const isEntries = collectSectionEntries(isSection);
+      if (isEntries.length) {
+        anamneseFields['Interrogatório de Sistemas'] = isEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // Hábitos de Vida
+    const habSection = panel.querySelector('#s-hab-first, #s-hab-follow');
+    if (habSection) {
+      const habEntries = collectSectionEntries(habSection);
+      if (habEntries.length) {
+        anamneseFields['Hábitos de Vida'] = habEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // Alimentação
+    const alimSection = panel.querySelector('#s-alim-first, #s-alim-follow');
+    if (alimSection) {
+      const alimEntries = collectSectionEntries(alimSection);
+      if (alimEntries.length) {
+        anamneseFields['Alimentação'] = alimEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // DNPM
+    const dnpmSection = panel.querySelector('#s-dnpm-first, #s-dnpm-follow');
+    if (dnpmSection) {
+      const dnpmEntries = collectSectionEntries(dnpmSection);
+      if (dnpmEntries.length) {
+        anamneseFields['Desenvolvimento Neuropsicomotor'] = dnpmEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // Antecedentes
+    const gestSection = panel.querySelector('#s-gest-first');
+    if (gestSection) {
+      const gestEntries = collectSectionEntries(gestSection);
+      if (gestEntries.length) {
+        anamneseFields['Antecedentes Gestacionais e Neonatais'] = gestEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    const apSection = panel.querySelector('#s-ap-first');
+    if (apSection) {
+      const apEntries = collectSectionEntries(apSection);
+      if (apEntries.length) {
+        anamneseFields['Antecedentes Pessoais'] = apEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    const afSection = panel.querySelector('#s-af-first');
+    if (afSection) {
+      const afEntries = collectSectionEntries(afSection);
+      if (afEntries.length) {
+        anamneseFields['Antecedentes Familiares'] = afEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    // Psicossocial
+    const psiSection = panel.querySelector('#s-psi-first, #s-psi-follow');
+    if (psiSection) {
+      const psiEntries = collectSectionEntries(psiSection);
+      if (psiEntries.length) {
+        anamneseFields['Aspectos Psicossociais'] = psiEntries
+          .map(e => `${e.label}: ${e.value}`)
+          .join('; ');
+      }
+    }
+    
+    if (Object.keys(anamneseFields).length === 0) return '';
+    
+    return Object.entries(anamneseFields)
+      .map(([titulo, conteudo]) => 
+        `<div class="print-topic"><span class="print-topic-title">${escapeHtml(titulo)}:</span> <span class="print-topic-content">${escapeHtml(conteudo)}</span></div>`
+      )
+      .join('');
+  }
+
+  function coletarObjetivo(panel) {
+    const objSection = panel.querySelector('#s-obj-first, #s-obj-follow');
+    if (!objSection) return '';
+    
+    const objEntries = collectSectionEntries(objSection);
+    if (objEntries.length === 0) return '';
+    
+    return objEntries
+      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
+      .join('');
+  }
+
+  function coletarAvaliacao(panel) {
+    const assSection = panel.querySelector('#s-ass-first, #s-ass-follow');
+    if (!assSection) return '';
+    
+    const assEntries = collectSectionEntries(assSection);
+    if (assEntries.length === 0) return '';
+    
+    return assEntries
+      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
+      .join('');
+  }
+
+  function coletarPlano(panel) {
+    const planSection = panel.querySelector('#s-plan-first, #s-plan-follow');
+    if (!planSection) return '';
+    
+    const planEntries = collectSectionEntries(planSection);
+    if (planEntries.length === 0) return '';
+    
+    return planEntries
+      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
+      .join('');
   }
 
   function imprimirConsulta() {
