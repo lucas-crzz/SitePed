@@ -15,15 +15,25 @@
     --line: #e2e8f0; --bg: #f8fafb; --white: #ffffff;
     --red: #e53e3e;
   }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--navy); min-height: 100vh; line-height: 1.45; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(13, 124, 107, 0.08) 1px, transparent 0),
+      radial-gradient(circle at 1px 1px, rgba(26, 44, 61, 0.04) 1px, transparent 0);
+    background-size: 32px 32px, 64px 64px;
+    color: var(--navy);
+    min-height: 100vh;
+    line-height: 1.55;
+  }
 
   /* HEADER */
   .header { background: var(--navy); padding: 24px 32px 20px; position: relative; overflow: hidden; }
   .header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; border-radius: 50%; border: 32px solid rgba(255,255,255,0.05); }
   .header::after { content: ''; position: absolute; bottom: -30px; left: 200px; width: 120px; height: 120px; border-radius: 50%; border: 20px solid rgba(255,255,255,0.04); }
   .header-label { font-size: 10px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--teal-mid); margin-bottom: 6px; }
-  .header h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: #fff; line-height: 1.2; }
-  .header p { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 26px; color: #fff; line-height: 1.2; }
+  .header p { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; }
 
   /* DATE STAMP */
   .header-meta { display: flex; align-items: center; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
@@ -35,22 +45,29 @@
 
   /* TABS */
   .tabs { display: flex; padding: 20px 20px 0; border-bottom: 2px solid var(--line); background: #fff; }
-  .tab { padding: 11px 22px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; border-radius: 6px 6px 0 0; transition: all .2s; display: flex; align-items: center; gap: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+  .tab { padding: 11px 22px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; border-radius: 6px 6px 0 0; transition: all .2s; display: flex; align-items: center; gap: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; }
   .tab .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: .5; }
   .tab.active-first { color: var(--teal); border-bottom-color: var(--teal); background: var(--teal-light); }
   .tab.active-follow { color: var(--follow); border-bottom-color: var(--follow); background: var(--follow-light); }
   .tab.active-ref { color: var(--amber); border-bottom-color: var(--amber); background: var(--amber-light); }
 
   /* TOOLBAR */
-  .toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 14px 24px 0; max-width: 860px; margin: 0 auto; }
+  .toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 14px 24px 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
+  .toolbar-status { display: flex; align-items: center; gap: 12px; margin-right: auto; flex-wrap: wrap; }
+  .progress-pill { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: var(--slate); }
   .btn { padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+  .btn .btn-icon { font-size: 13px; }
   .btn-clear { background: #fff; color: var(--slate); border: 1px solid var(--line); }
   .btn-clear:hover { background: #fef2f2; color: var(--red); border-color: #fecaca; }
   .btn-print { background: var(--navy); color: #fff; }
   .btn-print:hover { background: #243547; }
   .btn-save { background: var(--teal); color: #fff; }
   .btn-save:hover { background: var(--teal-mid); }
-  .save-status { margin-right: auto; font-size: 11px; color: var(--muted); min-height: 16px; }
+  .btn-copy { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+  .btn-copy:hover { background: #eef2f7; }
+  .btn-toggle { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+  .btn-toggle:hover { background: #eef2f7; }
+  .save-status { font-size: 11px; color: var(--muted); min-height: 16px; }
   .save-status.error { color: var(--red); }
 
   /* CONTENT */
@@ -67,11 +84,11 @@
   .section { background: #fff; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px; overflow: hidden; }
   .section-header { padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
   .section-header:hover { background: var(--bg); }
-  .section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .section-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(26,44,61,0.05); }
   .icon-first { background: var(--teal-light); }
   .icon-follow { background: var(--follow-light); }
   .icon-amber { background: var(--amber-light); }
-  .section-title { font-size: 14px; font-weight: 600; color: var(--navy); flex: 1; }
+  .section-title { font-size: 15px; font-weight: 700; color: var(--navy); letter-spacing: 0.2px; flex: 1; }
   .section-toggle { font-size: 11px; color: var(--muted); transition: transform .2s; }
   .section.open .section-toggle { transform: rotate(90deg); }
   .section-body { display: none; padding: 0 18px 18px; }
@@ -81,7 +98,7 @@
   .field-group { margin-bottom: 14px; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  label.field-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  label.field-label { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
   input.field-input, textarea.field-textarea, select.field-select {
     width: 100%; border: 1.5px solid var(--line); border-radius: 8px;
     padding: 8px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif;
@@ -113,6 +130,17 @@
 
   /* FILLED INDICATOR */
   .field-filled { border-color: #68d391 !important; }
+  .field-group.field-invalid .field-label { color: var(--red); }
+  .field-group.field-invalid input.field-input,
+  .field-group.field-invalid textarea.field-textarea,
+  .field-group.field-invalid select.field-select {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+  }
+  .field-group.field-invalid .radio-btn,
+  .field-group.field-invalid .check-btn {
+    border-color: var(--red);
+  }
 
   /* SOAP PRINT DOCUMENT */
   .print-sheet { display: none; background: #fff; color: #111827; max-width: 900px; margin: 16px auto 48px; padding: 30px 36px; border: 1px solid #d1d5db; border-radius: 10px; }
@@ -148,7 +176,8 @@
   .print-section { margin-bottom: 16px; }
   .print-section h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #111827; border-bottom: 2px solid #d1d5db; padding-bottom: 6px; margin-bottom: 10px; }
   .print-content { font-size: 11.5px; line-height: 1.7; color: #1f2937; }
-  .print-content p { margin-bottom: 8px; text-align: justify; }
+  .print-content p { margin-bottom: 0; text-align: justify; }
+  .print-paragraph { margin: 0; }
   .print-content strong { color: #111827; font-weight: 700; }
   .print-topic { margin-bottom: 10px; }
   .print-topic-title { font-weight: 700; color: #111827; display: inline; }
@@ -225,10 +254,15 @@
 </div>
 
 <div class="toolbar">
-  <div class="save-status" id="save-status">Rascunho local ativo.</div>
-  <button class="btn btn-save" onclick="salvarRascunho(true)">💾 Salvar rascunho</button>
-  <button class="btn btn-clear" onclick="limparFormulario()">🗑 Limpar</button>
-  <button class="btn btn-print" onclick="imprimirConsulta()">🖨 Imprimir SOAP</button>
+  <div class="toolbar-status">
+    <div class="save-status" id="save-status">Rascunho local ativo.</div>
+    <div class="progress-pill" id="progress-indicator">0% preenchido</div>
+  </div>
+  <button class="btn btn-copy" onclick="copiarProntuario()"><span class="btn-icon">📋</span>Copiar texto</button>
+  <button class="btn btn-toggle" id="btn-toggle" onclick="toggleAllSections()"><span class="btn-icon">🧩</span>Expandir tudo</button>
+  <button class="btn btn-save" onclick="salvarRascunho(true)"><span class="btn-icon">💾</span>Salvar rascunho</button>
+  <button class="btn btn-clear" onclick="limparFormulario()"><span class="btn-icon">🗑</span>Limpar</button>
+  <button class="btn btn-print" onclick="imprimirConsulta()"><span class="btn-icon">🖨</span>Imprimir SOAP</button>
 </div>
 
 <div class="content">
@@ -1286,6 +1320,24 @@
   let currentTab = 'first';
   let saveTimer;
   let isRestoringDraft = false;
+  let autoSaveIntervalId;
+
+  const REQUIRED_FIELDS = {
+    first: [
+      { type: 'text', selector: '#nome-crianca-first', label: 'Nome da criança' },
+      { type: 'radio', selector: 'input[name="sexo-first"]', label: 'Sexo' },
+      { type: 'text', selector: '#dnasc-first', label: 'Data de nascimento' },
+      { type: 'text', selector: '#queixa-principal-first', label: 'Queixa principal' },
+      { type: 'text', selector: '#plano-first', label: 'Plano terapêutico' }
+    ],
+    follow: [
+      { type: 'text', selector: '#nome-crianca-follow', label: 'Nome da criança' },
+      { type: 'radio', selector: 'input[name="sexo-follow"]', label: 'Sexo' },
+      { type: 'text', selector: '#dnasc-follow', label: 'Data de nascimento' },
+      { type: 'text', selector: '#queixa-principal-follow', label: 'Queixa principal' },
+      { type: 'text', selector: '#plano-follow', label: 'Plano terapêutico' }
+    ]
+  };
 
   function switchTab(tab) {
     document.getElementById('panel-first').classList.remove('active');
@@ -1308,16 +1360,62 @@
 
     currentTab = tab;
     if (!isRestoringDraft) scheduleAutoSave();
+    updateProgressIndicator();
+    updateExpandCollapseButton();
+    validateRequiredFields(false);
   }
 
   function toggleSection(id) {
     document.getElementById(id).classList.toggle('open');
+    updateExpandCollapseButton();
   }
 
   function updateSaveStatus(message, isError = false) {
     const status = document.getElementById('save-status');
     status.textContent = message;
     status.classList.toggle('error', isError);
+  }
+
+  function getActivePanel() {
+    return document.querySelector('#panel-first.active, #panel-follow.active, #panel-reference.active');
+  }
+
+  function updateProgressIndicator() {
+    const indicator = document.getElementById('progress-indicator');
+    const panel = getActivePanel();
+    if (!indicator) return;
+    if (!panel || panel.id === 'panel-reference') {
+      indicator.textContent = '—';
+      return;
+    }
+    const groups = Array.from(panel.querySelectorAll('.field-group'))
+      .filter((group) => group.querySelector('.field-label'));
+    const total = groups.length;
+    const filled = groups.filter((group) => Boolean(getFieldValue(group))).length;
+    const percent = total ? Math.round((filled / total) * 100) : 0;
+    indicator.textContent = `${percent}% preenchido`;
+  }
+
+  function updateExpandCollapseButton() {
+    const button = document.getElementById('btn-toggle');
+    const panel = getActivePanel();
+    if (!button || !panel || panel.id === 'panel-reference') return;
+    const sections = Array.from(panel.querySelectorAll('.section'));
+    const hasClosed = sections.some((section) => !section.classList.contains('open'));
+    const icon = button.querySelector('.btn-icon');
+    button.lastChild.textContent = hasClosed ? 'Expandir tudo' : 'Colapsar tudo';
+    if (icon) icon.textContent = hasClosed ? '🧩' : '🧱';
+  }
+
+  function toggleAllSections(forceOpen) {
+    const panel = getActivePanel();
+    if (!panel || panel.id === 'panel-reference') return;
+    const sections = Array.from(panel.querySelectorAll('.section'));
+    const shouldOpen = typeof forceOpen === 'boolean'
+      ? forceOpen
+      : sections.some((section) => !section.classList.contains('open'));
+    sections.forEach((section) => section.classList.toggle('open', shouldOpen));
+    updateExpandCollapseButton();
   }
 
   function collectFormState() {
@@ -1409,10 +1507,51 @@
     saveTimer = setTimeout(() => saveDraft(false), 450);
   }
 
+  function startAutoSaveInterval() {
+    clearInterval(autoSaveIntervalId);
+    autoSaveIntervalId = setInterval(() => {
+      if (!isRestoringDraft) saveDraft(false);
+    }, 60000);
+  }
+
   function updateFieldFilled(el) {
     if (el.classList.contains('field-input') || el.classList.contains('field-textarea')) {
       el.classList.toggle('field-filled', Boolean(el.value.trim()));
     }
+  }
+
+  function validateRequiredFields(showMessage = true) {
+    const panel = getActivePanel();
+    if (!panel || panel.id === 'panel-reference') return true;
+    const groupKey = panel.id === 'panel-first' ? 'first' : 'follow';
+    const rules = REQUIRED_FIELDS[groupKey] || [];
+    const missing = [];
+
+    rules.forEach((rule) => {
+      if (rule.type === 'radio') {
+        const radios = Array.from(panel.querySelectorAll(rule.selector));
+        const isValid = radios.some((radio) => radio.checked);
+        const group = radios[0]?.closest('.field-group');
+        if (group) group.classList.toggle('field-invalid', !isValid);
+        if (!isValid) missing.push(rule.label);
+        return;
+      }
+      const field = panel.querySelector(rule.selector);
+      const isValid = Boolean(field && field.value.trim());
+      const group = field?.closest('.field-group');
+      if (group) group.classList.toggle('field-invalid', !isValid);
+      if (!isValid) missing.push(rule.label);
+    });
+
+    if (showMessage) {
+      if (missing.length) {
+        updateSaveStatus(`Campos recomendados pendentes: ${missing.join(', ')}.`, true);
+      } else {
+        updateSaveStatus('Tudo pronto para copiar/imprimir.');
+      }
+    }
+
+    return missing.length === 0;
   }
 
   function setTodayDateIfEmpty() {
@@ -1512,7 +1651,7 @@
     const tipoConsulta = panel.id === 'panel-first' ? 'Primeira Consulta' : 'Consulta Subsequente';
     const nomeCriancaField = panel.querySelector('input[id^="nome-crianca"]');
     const dataConsultaField = document.getElementById('data-consulta');
-    const prontuarioField = panel.querySelector('input[id^="pront-num"]');
+    const prontuarioField = document.getElementById('pront-num');
     const sexoField = panel.querySelector('input[name^="sexo-"]:checked');
     const dataNascField = panel.querySelector('input[id^="dnasc-"]');
     
@@ -1550,18 +1689,23 @@
             <strong>Tipo:</strong> ${escapeHtml(tipoConsulta)}
           </div>
           <div>
-            <strong>Profissional:</strong> ${escapeHtml(panel.querySelector('input[id^="academico-"], input[id^="prof-"]')?.value.trim() || 'Não informado')}<br>
-            <strong>Nº Consulta:</strong> ${escapeHtml(panel.querySelector('input[id^="num-consulta"]')?.value.trim() || '')}<br>
+            <strong>Profissional:</strong> ${escapeHtml(document.getElementById('academico')?.value.trim() || 'Não informado')}<br>
+            <strong>Nº Consulta:</strong> ${escapeHtml(document.getElementById('num-consulta')?.value.trim() || '')}<br>
             <strong>CRM/COREN:</strong> ${escapeHtml(panel.querySelector('input[id^="crm-"], input[id^="coren"]')?.value.trim() || '')}
           </div>
         </div>
       </div>
 
-      ${anamnese ? `<div class="print-section"><h2>ANAMNESE</h2><div class="print-content">${anamnese}</div></div>` : ''}
-      ${objetivo ? `<div class="print-section"><h2>EXAME FÍSICO E OBJETIVO</h2><div class="print-content">${objetivo}</div></div>` : ''}
-      ${avaliacao ? `<div class="print-section"><h2>AVALIAÇÃO E IMPRESSÃO CLÍNICA</h2><div class="print-content">${avaliacao}</div></div>` : ''}
-      ${plano ? `<div class="print-section"><h2>PLANO TERAPÊUTICO</h2><div class="print-content">${plano}</div></div>` : ''}
+      ${anamnese ? `<div class="print-section"><h2>ANAMNESE</h2><div class="print-content"><p class="print-paragraph">${escapeHtml(anamnese)}</p></div></div>` : ''}
+      ${objetivo ? `<div class="print-section"><h2>EXAME FÍSICO E OBJETIVO</h2><div class="print-content"><p class="print-paragraph">${escapeHtml(objetivo)}</p></div></div>` : ''}
+      ${avaliacao ? `<div class="print-section"><h2>AVALIAÇÃO E IMPRESSÃO CLÍNICA</h2><div class="print-content"><p class="print-paragraph">${escapeHtml(avaliacao)}</p></div></div>` : ''}
+      ${plano ? `<div class="print-section"><h2>PLANO TERAPÊUTICO</h2><div class="print-content"><p class="print-paragraph">${escapeHtml(plano)}</p></div></div>` : ''}
     `;
+  }
+
+  function formatSectionText(entries) {
+    if (!entries.length) return '';
+    return entries.map((entry) => `${entry.label}: ${entry.value}`).join('; ');
   }
 
   function coletarAnamnese(panel) {
@@ -1671,12 +1815,10 @@
     }
     
     if (Object.keys(anamneseFields).length === 0) return '';
-    
+
     return Object.entries(anamneseFields)
-      .map(([titulo, conteudo]) => 
-        `<div class="print-topic"><span class="print-topic-title">${escapeHtml(titulo)}:</span> <span class="print-topic-content">${escapeHtml(conteudo)}</span></div>`
-      )
-      .join('');
+      .map(([titulo, conteudo]) => `${titulo}: ${conteudo}`)
+      .join('; ');
   }
 
   function coletarObjetivo(panel) {
@@ -1684,11 +1826,7 @@
     if (!objSection) return '';
     
     const objEntries = collectSectionEntries(objSection);
-    if (objEntries.length === 0) return '';
-    
-    return objEntries
-      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
-      .join('');
+    return formatSectionText(objEntries);
   }
 
   function coletarAvaliacao(panel) {
@@ -1696,11 +1834,7 @@
     if (!assSection) return '';
     
     const assEntries = collectSectionEntries(assSection);
-    if (assEntries.length === 0) return '';
-    
-    return assEntries
-      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
-      .join('');
+    return formatSectionText(assEntries);
   }
 
   function coletarPlano(panel) {
@@ -1708,11 +1842,65 @@
     if (!planSection) return '';
     
     const planEntries = collectSectionEntries(planSection);
-    if (planEntries.length === 0) return '';
-    
-    return planEntries
-      .map(e => `<div class="print-topic"><span class="print-topic-title">${escapeHtml(e.label)}:</span> <span class="print-topic-content">${escapeHtml(e.value)}</span></div>`)
-      .join('');
+    return formatSectionText(planEntries);
+  }
+
+  function buildPlainText() {
+    const panel = getActivePanel();
+    if (!panel || panel.id === 'panel-reference') return '';
+    const tipoConsulta = panel.id === 'panel-first' ? 'Primeira Consulta' : 'Consulta Subsequente';
+    const nomeCriancaField = panel.querySelector('input[id^="nome-crianca"]');
+    const dataConsultaField = document.getElementById('data-consulta');
+    const prontuarioField = document.getElementById('pront-num');
+    const sexoField = panel.querySelector('input[name^="sexo-"]:checked');
+    const dataNascField = panel.querySelector('input[id^="dnasc-"]');
+
+    const nomeCrianca = nomeCriancaField?.value.trim() || 'Não informado';
+    const dataConsulta = formatDateBR(dataConsultaField?.value || '');
+    const prontuario = prontuarioField?.value.trim() || 'Não informado';
+    const sexo = sexoField?.closest('label')?.textContent.trim() || 'Não informado';
+    const dataNasc = formatDateBR(dataNascField?.value || '');
+
+    const anamnese = coletarAnamnese(panel);
+    const objetivo = coletarObjetivo(panel);
+    const avaliacao = coletarAvaliacao(panel);
+    const plano = coletarPlano(panel);
+
+    const header = `PRONTUARIO PEDIATRICO | ${tipoConsulta}`;
+    const meta = `Paciente: ${nomeCrianca} | Sexo: ${sexo} | Nascimento: ${dataNasc} | Data: ${dataConsulta} | Prontuario: ${prontuario}`;
+    const parts = [header, meta];
+
+    if (anamnese) parts.push(`ANAMNESE: ${anamnese}`);
+    if (objetivo) parts.push(`EXAME FISICO E OBJETIVO: ${objetivo}`);
+    if (avaliacao) parts.push(`AVALIACAO E IMPRESSAO CLINICA: ${avaliacao}`);
+    if (plano) parts.push(`PLANO TERAPEUTICO: ${plano}`);
+
+    return parts.join('\n');
+  }
+
+  async function copiarProntuario() {
+    if (currentTab === 'reference') {
+      updateSaveStatus('Abra uma consulta para copiar o texto.', true);
+      return;
+    }
+    validateRequiredFields(true);
+    const text = buildPlainText();
+    if (!text) {
+      updateSaveStatus('Preencha campos antes de copiar.', true);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      updateSaveStatus('Texto copiado para a area de transferencia.');
+    } catch (error) {
+      const fallback = document.createElement('textarea');
+      fallback.value = text;
+      document.body.appendChild(fallback);
+      fallback.select();
+      document.execCommand('copy');
+      document.body.removeChild(fallback);
+      updateSaveStatus('Texto copiado (modo compatibilidade).');
+    }
   }
 
   function imprimirConsulta() {
@@ -1720,6 +1908,7 @@
       updateSaveStatus('Abra uma consulta para imprimir o SOAP.', true);
       return;
     }
+    validateRequiredFields(true);
     buildSoapDocument();
     document.body.classList.add('print-ready');
     window.print();
@@ -1735,6 +1924,8 @@
     if (target.matches('input, textarea, select')) {
       updateFieldFilled(target);
       scheduleAutoSave();
+      updateProgressIndicator();
+      validateRequiredFields(false);
     }
   });
 
@@ -1744,6 +1935,8 @@
     if (target.matches('input, textarea, select')) {
       updateFieldFilled(target);
       scheduleAutoSave();
+      updateProgressIndicator();
+      validateRequiredFields(false);
     }
   });
 
@@ -1752,12 +1945,32 @@
       event.preventDefault();
       salvarRascunho(true);
     }
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'c') {
+      event.preventDefault();
+      copiarProntuario();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'e') {
+      event.preventDefault();
+      toggleAllSections();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveDraft(false);
+  });
+
+  window.addEventListener('beforeunload', () => {
+    saveDraft(false);
   });
 
   setTodayDateIfEmpty();
   loadDraft();
   Array.from(document.querySelectorAll('input, textarea')).forEach((el) => updateFieldFilled(el));
   buildSoapDocument();
+  updateProgressIndicator();
+  updateExpandCollapseButton();
+  validateRequiredFields(false);
+  startAutoSaveInterval();
 </script>
 <script>
 /* ============================================================
