@@ -1935,13 +1935,13 @@
 
   function formatTopicBlockPlain(title, lines) {
     if (!lines || !lines.length) return '';
-    const body = lines.map((line) => `- ${line}`).join('\n');
+    const body = lines.join('\n');
     return `${title.toUpperCase()}\n${body}`;
   }
 
   function formatTopicBlockHtml(title, lines) {
     if (!lines || !lines.length) return '';
-    const body = lines.map((line) => `&#8226; ${escapeHtml(line)}`).join('<br>');
+    const body = lines.map((line) => escapeHtml(line)).join('<br>');
     return `<div><strong>${escapeHtml(title)}</strong><br>${body}</div>`;
   }
 
